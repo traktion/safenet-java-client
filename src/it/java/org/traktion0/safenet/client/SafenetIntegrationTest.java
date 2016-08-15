@@ -23,7 +23,7 @@ import static org.junit.Assert.*;
  *
  * @author paul
  */
-public class SafenetTest {
+public class SafenetIntegrationTest {
 
     private static final String LAUNCHER_URL = "http://localhost:8100";
 
