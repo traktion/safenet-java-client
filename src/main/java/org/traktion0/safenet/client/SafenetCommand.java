@@ -9,13 +9,16 @@ import javax.ws.rs.core.Response;
 /**
  * Created by paul on 18/08/16.
  */
-public abstract class AbstractCommand<R> extends HystrixCommand<R> {
+public abstract class SafenetCommand<R> extends HystrixCommand<R> {
 
     private static final int EXEC_TIMEOUT = 10000;
     private static final String COMMAND_GROUP = "SafeNetCommand";
     private Class<R> genericClass;
 
-    protected AbstractCommand(Class<R> genericClass) {
+    public static final String DRIVE = "drive";
+    public static final String APP = "app";
+
+    protected SafenetCommand(Class<R> genericClass) {
         super(Setter.withGroupKey(HystrixCommandGroupKey.Factory.asKey(COMMAND_GROUP))
                 .andCommandPropertiesDefaults(HystrixCommandProperties.Setter()
                         .withExecutionTimeoutInMilliseconds(EXEC_TIMEOUT)));

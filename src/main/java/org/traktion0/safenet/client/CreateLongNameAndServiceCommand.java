@@ -11,7 +11,7 @@ import javax.ws.rs.core.Response;
 /**
  * Created by paul on 06/08/16.
  */
-public class CreateLongNameAndServiceCommand extends AbstractCommand<String> {
+public class CreateLongNameAndServiceCommand extends SafenetCommand<String> {
 
     private static final String COMMAND_PATH = "/dns";
 

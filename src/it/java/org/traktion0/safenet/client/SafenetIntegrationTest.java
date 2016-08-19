@@ -109,7 +109,7 @@ public class SafenetIntegrationTest {
         String statusCode = "";
 
         try {
-            new GetDirectoryCommand(webTarget, token, "missing_directory").execute();
+            new GetDirectoryCommand(webTarget, token, SafenetCommand.DRIVE, "missing_directory").execute();
         } catch(HystrixBadRequestException e) {
             reason = e.getCause().getMessage();
             statusCode = e.getMessage();
@@ -123,12 +123,12 @@ public class SafenetIntegrationTest {
     public void testCreateNewDirectory() {
         // PG: Remove new directory if it already exists
         try {
-            new DeleteDirectoryCommand(webTarget, token, "new_directory").execute();
+            new DeleteDirectoryCommand(webTarget, token, SafenetCommand.DRIVE, "new_directory").execute();
         } catch(HystrixBadRequestException e) {
             // PG:ASSERT: Already deleted
         }
 
-        String message = new CreateDirectoryCommand(webTarget, token, "new_directory", new Directory()).execute();
+        String message = new CreateDirectoryCommand(webTarget, token, SafenetCommand.DRIVE, "new_directory", new Directory()).execute();
 
         assertEquals("OK", message);
     }
@@ -137,12 +137,12 @@ public class SafenetIntegrationTest {
     public void testGetExistingDirectory() {
         // PG: Setup existing directory to test
         try {
-            new CreateDirectoryCommand(webTarget, token, "existing_directory", new Directory()).execute();
+            new CreateDirectoryCommand(webTarget, token, SafenetCommand.DRIVE, "existing_directory", new Directory()).execute();
         } catch(HystrixBadRequestException e) {
             // PG:ASSERT: Already exists
         }
 
-        Directory existingDirectory = new GetDirectoryCommand(webTarget, token, "existing_directory").execute();
+        Directory existingDirectory = new GetDirectoryCommand(webTarget, token, SafenetCommand.DRIVE, "existing_directory").execute();
 
         assertEquals("existing_directory", existingDirectory.getInfo().getName());
     }
@@ -151,12 +151,12 @@ public class SafenetIntegrationTest {
     public void testDeleteExistingDirectory() {
         // PG: Setup existing directory to test
         try {
-            new CreateDirectoryCommand(webTarget, token, "delete_directory", new Directory()).execute();
+            new CreateDirectoryCommand(webTarget, token, SafenetCommand.DRIVE, "delete_directory", new Directory()).execute();
         } catch(HystrixBadRequestException e) {
             // PG:ASSERT: Already exists
         }
 
-        String message = new DeleteDirectoryCommand(webTarget, token, "delete_directory").execute();
+        String message = new DeleteDirectoryCommand(webTarget, token, SafenetCommand.DRIVE, "delete_directory").execute();
 
         assertEquals("OK", message);
     }
@@ -166,13 +166,13 @@ public class SafenetIntegrationTest {
     @Test
     public void testCreateNewFile() {
         try {
-            new DeleteFileCommand(webTarget, token, "new_file").execute();
+            new DeleteFileCommand(webTarget, token, SafenetCommand.DRIVE, "new_file").execute();
         } catch(HystrixBadRequestException e) {
             // PG:ASSERT: Already deleted
         }
 
         File file = new File("src/it/resources/maidsafe.svg");
-        String message = new CreateFileCommand(webTarget, token, "new_file", file).execute();
+        String message = new CreateFileCommand(webTarget, token, SafenetCommand.DRIVE, "new_file", file).execute();
 
         assertEquals("OK", message);
     }
@@ -181,12 +181,12 @@ public class SafenetIntegrationTest {
     public void testGetExistingFile() {
         try {
             File uploadFile = new File("src/it/resources/maidsafe.svg");
-            new CreateFileCommand(webTarget, token, "existing_directory/existing_file.svg", uploadFile).execute();
+            new CreateFileCommand(webTarget, token, SafenetCommand.DRIVE, "existing_directory/existing_file.svg", uploadFile).execute();
         } catch(HystrixBadRequestException e) {
             // PG: Already exists
         }
 
-        File downloadFile = new GetFileCommand(webTarget, token, "existing_directory/existing_file.svg").execute();
+        File downloadFile = new GetFileCommand(webTarget, token, SafenetCommand.DRIVE, "existing_directory/existing_file.svg").execute();
 
         assertTrue(downloadFile.length() > 0);
     }
@@ -195,12 +195,12 @@ public class SafenetIntegrationTest {
     public void testDeleteExistingFile() {
         try {
             File file = new File("src/it/resources/maidsafe.svg");
-            new CreateFileCommand(webTarget, token, "delete_file", file).execute();
+            new CreateFileCommand(webTarget, token, SafenetCommand.DRIVE, "delete_file", file).execute();
         } catch(HystrixBadRequestException e) {
             // PG: Already exists
         }
 
-        String message = new DeleteFileCommand(webTarget, token, "delete_file").execute();
+        String message = new DeleteFileCommand(webTarget, token, SafenetCommand.DRIVE, "delete_file").execute();
 
         assertEquals("OK", message);
     }
@@ -215,7 +215,7 @@ public class SafenetIntegrationTest {
             Dns dns = new Dns();
             dns.setLongName("traktion0");
             dns.setServiceName("test");
-            dns.setRootPath("drive");
+            dns.setRootPath(SafenetCommand.DRIVE);
             dns.setServiceHomeDirPath("/");
 
             message = new CreateLongNameAndServiceCommand(webTarget, token, dns).execute();
@@ -233,7 +233,7 @@ public class SafenetIntegrationTest {
         Dns dns = new Dns();
         dns.setLongName("traktion0");
         dns.setServiceName("newservice"); // PG: mustn't contain underscores
-        dns.setRootPath("drive");
+        dns.setRootPath(SafenetCommand.DRIVE);
         dns.setServiceHomeDirPath("/existing_directory/");
 
         try {
@@ -252,7 +252,7 @@ public class SafenetIntegrationTest {
         Dns dns = new Dns();
         dns.setLongName("traktion0");
         dns.setServiceName("existingservice"); // PG: mustn't contain underscores
-        dns.setRootPath("drive");
+        dns.setRootPath(SafenetCommand.DRIVE);
         dns.setServiceHomeDirPath("/existing_directory/");
 
         // PG: Setup existing directory to test

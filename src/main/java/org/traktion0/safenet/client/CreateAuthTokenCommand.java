@@ -16,7 +16,7 @@ import javax.ws.rs.core.Response;
  *
  * @author paul
   */
-public class CreateAuthTokenCommand extends AbstractCommand<Token> {
+public class CreateAuthTokenCommand extends SafenetCommand<Token> {
 
     private static final String COMMAND_PATH = "auth";
 

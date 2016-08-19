@@ -11,20 +11,22 @@ import javax.ws.rs.core.Response;
 /**
  * Created by paul on 06/08/16.
  */
-public class CreateDirectoryCommand extends AbstractCommand<String> {
+public class CreateDirectoryCommand extends SafenetCommand<String> {
 
     private static final String COMMAND_PATH = "/nfs/directory/";
 
     private final WebTarget webTarget;
     private final Token token;
+    private final String rootPath;
     private final String queryPath;
     private final Directory directory;
 
-    public CreateDirectoryCommand(WebTarget webTarget, Token token, String queryPath, Directory directory) {
+    public CreateDirectoryCommand(WebTarget webTarget, Token token, String rootPath, String queryPath, Directory directory) {
         super(String.class);
 
         this.webTarget = webTarget;
         this.token = token;
+        this.rootPath = rootPath;
         this.queryPath = queryPath;
         this.directory = directory;
     }
@@ -32,7 +34,7 @@ public class CreateDirectoryCommand extends AbstractCommand<String> {
     @Override
     protected String run() {
         Response response = webTarget
-                .path(COMMAND_PATH+"drive/"+queryPath)
+                .path(COMMAND_PATH + rootPath +"/" + queryPath)
                 .request()
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + token.getToken())
                 .post(Entity.entity(directory, MediaType.APPLICATION_JSON));
