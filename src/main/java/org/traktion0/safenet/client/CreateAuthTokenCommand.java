@@ -5,35 +5,26 @@
  */
 package org.traktion0.safenet.client;
 
+import org.traktion0.safenet.client.beans.Auth;
+import org.traktion0.safenet.client.beans.Token;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
 
-import com.netflix.hystrix.HystrixCommandGroupKey;
-import com.netflix.hystrix.HystrixCommand;
-import com.netflix.hystrix.HystrixCommandProperties;
-import com.netflix.hystrix.exception.HystrixBadRequestException;
-import org.traktion0.safenet.client.beans.Auth;
-import org.traktion0.safenet.client.beans.Token;
-
 /**
  *
  * @author paul
   */
-public class CreateAuthTokenCommand extends HystrixCommand<Token> {
+public class CreateAuthTokenCommand extends AbstractCommand<Token> {
 
-    private static final int EXEC_TIMEOUT = 10000;
-    private static final String COMMAND_GROUP = "SafeNetCommand";
     private static final String COMMAND_PATH = "auth";
 
     private final WebTarget webTarget;
     private final Auth auth;
 
     public CreateAuthTokenCommand(WebTarget webTarget, Auth auth) {
-        super(Setter.withGroupKey(HystrixCommandGroupKey.Factory.asKey(COMMAND_GROUP))
-                .andCommandPropertiesDefaults(HystrixCommandProperties.Setter()
-                        .withExecutionTimeoutInMilliseconds(EXEC_TIMEOUT)));
+        super(Token.class);
 
         this.webTarget = webTarget;
         this.auth = auth;
@@ -46,11 +37,11 @@ public class CreateAuthTokenCommand extends HystrixCommand<Token> {
                 .request()
                 .post(Entity.entity(auth, MediaType.APPLICATION_JSON));
 
-        if (response.getStatus() >= 200 && response.getStatus() < 300) {
-            return response.readEntity(Token.class);
-        } else {
-            Throwable cause = new Throwable(response.getStatusInfo().getReasonPhrase());
-            throw new HystrixBadRequestException(Integer.toString(response.getStatus()), cause);
-        }
+        return getEntity(response);
+    }
+
+    @Override
+    protected Token getFallback() {
+        return new Token();
     }
 }

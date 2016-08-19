@@ -5,6 +5,8 @@
  */
 package org.traktion0.safenet.client;
 
+import java.io.File;
+
 import com.netflix.hystrix.exception.HystrixBadRequestException;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -34,7 +36,6 @@ public class SafenetIntegrationTest {
 
     private static Token token;
     private static Auth auth;
-    private static Client client;
     private static WebTarget webTarget;
     
     @BeforeClass
@@ -127,9 +128,9 @@ public class SafenetIntegrationTest {
             // PG:ASSERT: Already deleted
         }
 
-        String createMessage = new CreateDirectoryCommand(webTarget, token, "new_directory", new Directory()).execute();
+        String message = new CreateDirectoryCommand(webTarget, token, "new_directory", new Directory()).execute();
 
-        assertEquals("OK", createMessage);
+        assertEquals("OK", message);
     }
 
     @Test
@@ -155,10 +156,114 @@ public class SafenetIntegrationTest {
             // PG:ASSERT: Already exists
         }
 
-        String deleteMessage = new DeleteDirectoryCommand(webTarget, token, "delete_directory").execute();
+        String message = new DeleteDirectoryCommand(webTarget, token, "delete_directory").execute();
 
-        assertEquals("OK", deleteMessage);
+        assertEquals("OK", message);
     }
 
     // PG:TODO: Test subdirectories
+
+    @Test
+    public void testCreateNewFile() {
+        try {
+            new DeleteFileCommand(webTarget, token, "new_file").execute();
+        } catch(HystrixBadRequestException e) {
+            // PG:ASSERT: Already deleted
+        }
+
+        File file = new File("src/it/resources/maidsafe.svg");
+        String message = new CreateFileCommand(webTarget, token, "new_file", file).execute();
+
+        assertEquals("OK", message);
+    }
+
+    @Test
+    public void testGetExistingFile() {
+        try {
+            File uploadFile = new File("src/it/resources/maidsafe.svg");
+            new CreateFileCommand(webTarget, token, "existing_directory/existing_file.svg", uploadFile).execute();
+        } catch(HystrixBadRequestException e) {
+            // PG: Already exists
+        }
+
+        File downloadFile = new GetFileCommand(webTarget, token, "existing_directory/existing_file.svg").execute();
+
+        assertTrue(downloadFile.length() > 0);
+    }
+
+    @Test
+    public void testDeleteExistingFile() {
+        try {
+            File file = new File("src/it/resources/maidsafe.svg");
+            new CreateFileCommand(webTarget, token, "delete_file", file).execute();
+        } catch(HystrixBadRequestException e) {
+            // PG: Already exists
+        }
+
+        String message = new DeleteFileCommand(webTarget, token, "delete_file").execute();
+
+        assertEquals("OK", message);
+    }
+
+    /*@Test
+    public void testCreateLongNameAndService() {
+        String message;
+        String reason;
+        String statusCode;
+
+        try {
+            Dns dns = new Dns();
+            dns.setLongName("traktion0");
+            dns.setServiceName("test");
+            dns.setRootPath("drive");
+            dns.setServiceHomeDirPath("/");
+
+            message = new CreateLongNameAndServiceCommand(webTarget, token, dns).execute();
+        } catch(HystrixBadRequestException e) {
+            reason = e.getCause().getMessage();
+            statusCode = e.getMessage();
+            message = statusCode+": "+reason;
+        }
+
+        assertEquals("OK", message);
+    }*/
+
+    @Test
+    public void testAddServiceToLongName() {
+        Dns dns = new Dns();
+        dns.setLongName("traktion0");
+        dns.setServiceName("newservice"); // PG: mustn't contain underscores
+        dns.setRootPath("drive");
+        dns.setServiceHomeDirPath("/existing_directory/");
+
+        try {
+            new DeleteServiceFromLongNameCommand(webTarget, token, dns).execute();
+        } catch(HystrixBadRequestException e) {
+            // PG:ASSERT: Already deleted
+        }
+
+        String message = new AddServiceToLongNameCommand(webTarget, token, dns).execute();
+
+        assertEquals("OK", message);
+    }
+
+    @Test
+    public void testDeleteServiceFromLongName() {
+        Dns dns = new Dns();
+        dns.setLongName("traktion0");
+        dns.setServiceName("existingservice"); // PG: mustn't contain underscores
+        dns.setRootPath("drive");
+        dns.setServiceHomeDirPath("/existing_directory/");
+
+        // PG: Setup existing directory to test
+        try {
+            new AddServiceToLongNameCommand(webTarget, token, dns).execute();
+        } catch(HystrixBadRequestException e) {
+            // PG:ASSERT: Already exists
+        }
+
+        String message = new DeleteServiceFromLongNameCommand(webTarget, token, dns).execute();
+
+        assertEquals("OK", message);
+    }
 }
