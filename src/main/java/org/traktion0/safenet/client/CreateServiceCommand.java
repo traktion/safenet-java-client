@@ -11,7 +11,7 @@ import javax.ws.rs.core.Response;
 /**
  * Created by paul on 06/08/16.
  */
-public class AddServiceToLongNameCommand extends SafenetCommand<String> {
+public class CreateServiceCommand extends SafenetCommand<String> {
 
     private static final String COMMAND_PATH = "/dns";
 
@@ -19,7 +19,7 @@ public class AddServiceToLongNameCommand extends SafenetCommand<String> {
     private final Token token;
     private final Dns dns;
 
-    public AddServiceToLongNameCommand(WebTarget webTarget, Token token, Dns dns) {
+    public CreateServiceCommand(WebTarget webTarget, Token token, Dns dns) {
         super(String.class);
 
         this.webTarget = webTarget;

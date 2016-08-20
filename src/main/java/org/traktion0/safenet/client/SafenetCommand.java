@@ -11,7 +11,7 @@ import javax.ws.rs.core.Response;
  */
 public abstract class SafenetCommand<R> extends HystrixCommand<R> {
 
-    private static final int EXEC_TIMEOUT = 10000;
+    private static final int EXEC_TIMEOUT = 30000;
     private static final String COMMAND_GROUP = "SafeNetCommand";
     private Class<R> genericClass;
 

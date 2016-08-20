@@ -98,7 +98,7 @@ public class SafenetIntegrationTest {
 
     @Test
     public void testValidateExistingAuthToken() {
-        String authMessage = new ValidateAuthTokenCommand(webTarget, token).execute();
+        String authMessage = new GetAuthTokenCommand(webTarget, token).execute();
 
         assertEquals("OK", authMessage);
     }
@@ -242,7 +242,7 @@ public class SafenetIntegrationTest {
             // PG:ASSERT: Already deleted
         }
 
-        String message = new AddServiceToLongNameCommand(webTarget, token, dns).execute();
+        String message = new CreateServiceCommand(webTarget, token, dns).execute();
 
         assertEquals("OK", message);
     }
@@ -257,7 +257,7 @@ public class SafenetIntegrationTest {
 
         // PG: Setup existing directory to test
         try {
-            new AddServiceToLongNameCommand(webTarget, token, dns).execute();
+            new CreateServiceCommand(webTarget, token, dns).execute();
         } catch(HystrixBadRequestException e) {
             // PG:ASSERT: Already exists
         }

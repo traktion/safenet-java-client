@@ -14,14 +14,14 @@ import javax.ws.rs.core.Response;
  *
  * @author paul
   */
-public class ValidateAuthTokenCommand extends SafenetCommand<String> {
+public class GetAuthTokenCommand extends SafenetCommand<String> {
 
     private static final String COMMAND_PATH = "auth";
 
     private final WebTarget webTarget;
     private final Token token;
 
-    public ValidateAuthTokenCommand(WebTarget webTarget, Token token) {
+    public GetAuthTokenCommand(WebTarget webTarget, Token token) {
         super(String.class);
 
         this.webTarget = webTarget;
