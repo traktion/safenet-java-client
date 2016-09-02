@@ -1,6 +1,6 @@
 package org.traktion0.safenet.client.commands;
 
-import org.traktion0.safenet.client.beans.Token;
+import org.traktion0.safenet.client.beans.Auth;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.HttpHeaders;
@@ -17,19 +17,11 @@ public class CreateFile extends SafenetCommand<String> {
 
     private static final String COMMAND_PATH = "/nfs/file/";
 
-    private final WebTarget webTarget;
-    private final Token token;
-    private final String rootPath;
-    private final String queryPath;
     private final File file;
 
-    public CreateFile(WebTarget webTarget, Token token, String rootPath, String queryPath, File file) {
-        super(String.class);
+    public CreateFile(WebTarget webTarget, Auth auth, String queryPath, File file) {
+        super(String.class, webTarget, auth, queryPath);
 
-        this.webTarget = webTarget;
-        this.token = token;
-        this.rootPath = rootPath;
-        this.queryPath = queryPath;
         this.file = file;
     }
 
@@ -43,8 +35,8 @@ public class CreateFile extends SafenetCommand<String> {
     }
 
     private String doRequest(InputStream inputStream) {
-        Response response = webTarget
-                .path(COMMAND_PATH + rootPath + "/" +queryPath)
+        Response response = getWebTarget()
+                .path(getPath())
                 .request()
                 .headers(getHeaders())
                 .post(Entity.entity(inputStream, MediaType.APPLICATION_OCTET_STREAM));
@@ -59,9 +51,14 @@ public class CreateFile extends SafenetCommand<String> {
 
     private MultivaluedHashMap<String, Object> getHeaders() {
         MultivaluedHashMap<String, Object> headers = new MultivaluedHashMap<>();
-        headers.add(HttpHeaders.AUTHORIZATION, "Bearer " + token.getToken());
+        headers.add(HttpHeaders.AUTHORIZATION, "Bearer " + getAuth().getToken());
         headers.add("Content-Length", Long.toString(file.length()));
         headers.add("Content-Type", MimetypesFileTypeMap.getDefaultFileTypeMap().getContentType(file));
         return headers;
+    }
+
+    @Override
+    protected String getCommandPath() {
+        return COMMAND_PATH + getRootPath() +"/";
     }
 }

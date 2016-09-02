@@ -6,7 +6,6 @@
 package org.traktion0.safenet.client.commands;
 
 import org.traktion0.safenet.client.beans.Auth;
-import org.traktion0.safenet.client.beans.Token;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
@@ -16,32 +15,38 @@ import javax.ws.rs.core.Response;
  *
  * @author paul
   */
-public class CreateAuthToken extends SafenetCommand<Token> {
+public class CreateAuthToken extends SafenetCommand<Auth> {
 
-    private static final String COMMAND_PATH = "auth";
+    private static final String COMMAND_PATH = "/auth";
 
-    private final WebTarget webTarget;
-    private final Auth auth;
+    private final Auth preAuth;
 
-    public CreateAuthToken(WebTarget webTarget, Auth auth) {
-        super(Token.class);
+    public CreateAuthToken(WebTarget webTarget, Auth preAuth) {
+        super(Auth.class, webTarget, preAuth, "");
 
-        this.webTarget = webTarget;
-        this.auth = auth;
+        this.preAuth = preAuth;
     }
     
     @Override
-    protected Token run() {
-        Response response = webTarget
-                .path(COMMAND_PATH)
+    protected Auth run() {
+        Response response = getWebTarget()
+                .path(getPath())
                 .request()
-                .post(Entity.entity(auth, MediaType.APPLICATION_JSON));
+                .post(Entity.entity(preAuth, MediaType.APPLICATION_JSON));
 
-        return getEntity(response);
+        Auth auth = getEntity(response);
+        auth.setApp(preAuth.getApp());
+
+        return auth;
     }
 
     @Override
-    protected Token getFallback() {
-        return new Token();
+    protected Auth getFallback() {
+        return new Auth();
+    }
+
+    @Override
+    protected String getCommandPath() {
+        return COMMAND_PATH;
     }
 }

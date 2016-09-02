@@ -1,7 +1,7 @@
 package org.traktion0.safenet.client.commands;
 
+import org.traktion0.safenet.client.beans.Auth;
 import org.traktion0.safenet.client.beans.SafenetDirectory;
-import org.traktion0.safenet.client.beans.Token;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.HttpHeaders;
@@ -15,28 +15,20 @@ public class CreateDirectory extends SafenetCommand<String> {
 
     private static final String COMMAND_PATH = "/nfs/directory/";
 
-    private final WebTarget webTarget;
-    private final Token token;
-    private final String rootPath;
-    private final String queryPath;
     private final SafenetDirectory safenetDirectory;
 
-    public CreateDirectory(WebTarget webTarget, Token token, String rootPath, String queryPath, SafenetDirectory safenetDirectory) {
-        super(String.class);
+    public CreateDirectory(WebTarget webTarget, Auth auth,String queryPath, SafenetDirectory safenetDirectory) {
+        super(String.class, webTarget, auth, queryPath);
 
-        this.webTarget = webTarget;
-        this.token = token;
-        this.rootPath = rootPath;
-        this.queryPath = queryPath;
         this.safenetDirectory = safenetDirectory;
     }
 
     @Override
     protected String run() {
-        Response response = webTarget
-                .path(COMMAND_PATH + rootPath +"/" + queryPath)
+        Response response = getWebTarget()
+                .path(getPath())
                 .request()
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + token.getToken())
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + getAuth().getToken())
                 .post(Entity.entity(safenetDirectory, MediaType.APPLICATION_JSON));
 
         return getEntity(response);
@@ -45,5 +37,10 @@ public class CreateDirectory extends SafenetCommand<String> {
     @Override
     protected String getFallback() {
         return "ERROR";
+    }
+
+    @Override
+    protected String getCommandPath() {
+        return COMMAND_PATH + getRootPath() +"/";
     }
 }

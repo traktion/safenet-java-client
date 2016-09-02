@@ -5,7 +5,7 @@
  */
 package org.traktion0.safenet.client.commands;
 
-import org.traktion0.safenet.client.beans.Token;
+import org.traktion0.safenet.client.beans.Auth;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
@@ -16,24 +16,18 @@ import javax.ws.rs.core.Response;
   */
 public class GetAuthToken extends SafenetCommand<String> {
 
-    private static final String COMMAND_PATH = "auth";
+    private static final String COMMAND_PATH = "/auth";
 
-    private final WebTarget webTarget;
-    private final Token token;
-
-    public GetAuthToken(WebTarget webTarget, Token token) {
-        super(String.class);
-
-        this.webTarget = webTarget;
-        this.token = token;
+    public GetAuthToken(WebTarget webTarget, Auth auth) {
+        super(String.class, webTarget, auth, "");
     }
 
     @Override
     protected String run() {
-        Response response = webTarget
-                .path(COMMAND_PATH)
+        Response response = getWebTarget()
+                .path(getPath())
                 .request()
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + token.getToken())
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + getAuth().getToken())
                 .get();
 
         return getEntity(response);
@@ -42,5 +36,10 @@ public class GetAuthToken extends SafenetCommand<String> {
     @Override
     protected String getFallback() {
         return "ERROR";
+    }
+
+    @Override
+    protected String getCommandPath() {
+        return COMMAND_PATH;
     }
 }

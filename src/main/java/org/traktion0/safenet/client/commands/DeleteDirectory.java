@@ -1,6 +1,6 @@
 package org.traktion0.safenet.client.commands;
 
-import org.traktion0.safenet.client.beans.Token;
+import org.traktion0.safenet.client.beans.Auth;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
@@ -12,26 +12,16 @@ public class DeleteDirectory extends SafenetCommand<String> {
 
     private static final String COMMAND_PATH = "/nfs/directory/";
 
-    private final WebTarget webTarget;
-    private final Token token;
-    private final String rootPath;
-    private final String queryPath;
-
-    public DeleteDirectory(WebTarget webTarget, Token token, String rootPath, String queryPath) {
-        super(String.class);
-
-        this.webTarget = webTarget;
-        this.token = token;
-        this.rootPath = rootPath;
-        this.queryPath = queryPath;
+    public DeleteDirectory(WebTarget webTarget, Auth auth, String queryPath) {
+        super(String.class, webTarget, auth, queryPath);
     }
 
     @Override
     protected String run() {
-        Response response = webTarget
-                .path(COMMAND_PATH + rootPath + "/" + queryPath)
+        Response response = getWebTarget()
+                .path(getPath())
                 .request()
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + token.getToken())
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + getAuth().getToken())
                 .delete();
 
         return getEntity(response);
@@ -40,5 +30,10 @@ public class DeleteDirectory extends SafenetCommand<String> {
     @Override
     protected String getFallback() {
         return "ERROR";
+    }
+
+    @Override
+    protected String getCommandPath() {
+        return COMMAND_PATH + getRootPath() +"/";
     }
 }

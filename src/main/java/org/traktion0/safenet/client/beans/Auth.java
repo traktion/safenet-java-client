@@ -11,13 +11,20 @@ public class Auth {
 
     private App app;
     private String[] permissions;
+    private String token = "";
 
     public Auth() {
+        this(new App(), new String[] {}, "");
     }
 
     public Auth(App app, String[] permissions) {
+        this(app, permissions, "");
+    }
+
+    public Auth(App app, String[] permissions, String token) {
         this.app = app;
         this.permissions = permissions;
+        this.token = token;
     }
 
     public App getApp() {
@@ -36,22 +43,32 @@ public class Auth {
         this.permissions = permissions;
     }
 
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof Auth)) return false;
 
-        Auth authBean = (Auth) o;
+        Auth auth = (Auth) o;
 
-        if (getApp() != null ? !getApp().equals(authBean.getApp()) : authBean.getApp() != null) return false;
+        if (getApp() != null ? !getApp().equals(auth.getApp()) : auth.getApp() != null) return false;
+        if (getToken() != null ? !getToken().equals(auth.getToken()) : auth.getToken() != null) return false;
         // Probably incorrect - comparing Object[] arrays with Arrays.equals
-        return Arrays.equals(getPermissions(), authBean.getPermissions());
+        return Arrays.equals(getPermissions(), auth.getPermissions());
 
     }
 
     @Override
     public int hashCode() {
         int result = getApp() != null ? getApp().hashCode() : 0;
+        result = 31 * result + (getToken() != null ? getToken().hashCode() : 0);
         result = 31 * result + Arrays.hashCode(getPermissions());
         return result;
     }
@@ -60,6 +77,7 @@ public class Auth {
     public String toString() {
         return "Auth{" +
                 "app=" + app +
+                ", token='" + token + '\'' +
                 ", permissions=" + Arrays.toString(permissions) +
                 '}';
     }
