@@ -6,14 +6,17 @@
 package org.traktion0.safenet.client;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 
-import com.netflix.hystrix.exception.HystrixBadRequestException;
+import org.glassfish.jersey.client.ClientProperties;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.traktion0.safenet.client.beans.*;
+import org.traktion0.safenet.client.commands.*;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
@@ -51,14 +54,17 @@ public class SafenetIntegrationTest {
                 permissions
         );
 
+        System.setProperty("sun.net.http.allowRestrictedHeaders", "true");
+
         Client client = ClientBuilder.newClient();
+        client.property(ClientProperties.REQUEST_ENTITY_PROCESSING, "CHUNKED");
         webTarget = client.target(LAUNCHER_URL);
-        token = new CreateAuthTokenCommand(webTarget, auth).execute();
+        token = new CreateAuthToken(webTarget, auth).execute();
     }
     
     @AfterClass
     public static void tearDownClass() {
-        new DeleteAuthTokenCommand(webTarget, token).execute();
+        new DeleteAuthToken(webTarget, token).execute();
     }
     
     @Before
@@ -72,33 +78,33 @@ public class SafenetIntegrationTest {
     @Test
     public void testDeleteMissingAuthToken() {
         String reason = "";
-        String statusCode = "";
+        int statusCode = 0;
 
         try {
             Token missingToken = new Token();
             missingToken.setToken("1234567890");
 
-            new DeleteAuthTokenCommand(webTarget, missingToken).execute();
-        } catch(HystrixBadRequestException e) {
-            reason = e.getCause().getMessage();
-            statusCode = e.getMessage();
+            new DeleteAuthToken(webTarget, missingToken).execute();
+        } catch(SafenetBadRequestException e) {
+            reason = e.getDescription();
+            statusCode = e.getStatusCode();
         }
 
-        assertEquals("401", statusCode);
+        assertEquals(401, statusCode);
         assertEquals("Unauthorized", reason);
     }
 
     @Test
     public void testDeleteExistingAuthToken() {
-        Token tempToken = new CreateAuthTokenCommand(webTarget, auth).execute();
-        String authMessage = new DeleteAuthTokenCommand(webTarget, tempToken).execute();
+        Token tempToken = new CreateAuthToken(webTarget, auth).execute();
+        String authMessage = new DeleteAuthToken(webTarget, tempToken).execute();
 
         assertEquals("OK", authMessage);
     }
 
     @Test
     public void testValidateExistingAuthToken() {
-        String authMessage = new GetAuthTokenCommand(webTarget, token).execute();
+        String authMessage = new GetAuthToken(webTarget, token).execute();
 
         assertEquals("OK", authMessage);
     }
@@ -106,16 +112,16 @@ public class SafenetIntegrationTest {
     @Test
     public void testGetMissingDirectory() {
         String reason = "";
-        String statusCode = "";
+        int statusCode = 0;
 
         try {
-            new GetDirectoryCommand(webTarget, token, SafenetCommand.DRIVE, "missing_directory").execute();
-        } catch(HystrixBadRequestException e) {
-            reason = e.getCause().getMessage();
-            statusCode = e.getMessage();
+            new GetDirectory(webTarget, token, SafenetCommand.DRIVE, "missing_directory").execute();
+        } catch(SafenetBadRequestException e) {
+            reason = e.getDescription();
+            statusCode = e.getStatusCode();
         }
 
-        assertEquals("404", statusCode);
+        assertEquals(404, statusCode);
         assertEquals("Not Found", reason);
     }
 
@@ -123,12 +129,12 @@ public class SafenetIntegrationTest {
     public void testCreateNewDirectory() {
         // PG: Remove new directory if it already exists
         try {
-            new DeleteDirectoryCommand(webTarget, token, SafenetCommand.DRIVE, "new_directory").execute();
-        } catch(HystrixBadRequestException e) {
+            new DeleteDirectory(webTarget, token, SafenetCommand.DRIVE, "new_directory").execute();
+        } catch(SafenetBadRequestException e) {
             // PG:ASSERT: Already deleted
         }
 
-        String message = new CreateDirectoryCommand(webTarget, token, SafenetCommand.DRIVE, "new_directory", new Directory()).execute();
+        String message = new CreateDirectory(webTarget, token, SafenetCommand.DRIVE, "new_directory", new SafenetDirectory()).execute();
 
         assertEquals("OK", message);
     }
@@ -137,26 +143,26 @@ public class SafenetIntegrationTest {
     public void testGetExistingDirectory() {
         // PG: Setup existing directory to test
         try {
-            new CreateDirectoryCommand(webTarget, token, SafenetCommand.DRIVE, "existing_directory", new Directory()).execute();
-        } catch(HystrixBadRequestException e) {
+            new CreateDirectory(webTarget, token, SafenetCommand.DRIVE, "existing_directory", new SafenetDirectory()).execute();
+        } catch(SafenetBadRequestException e) {
             // PG:ASSERT: Already exists
         }
 
-        Directory existingDirectory = new GetDirectoryCommand(webTarget, token, SafenetCommand.DRIVE, "existing_directory").execute();
+        SafenetDirectory existingSafenetDirectory = new GetDirectory(webTarget, token, SafenetCommand.DRIVE, "existing_directory").execute();
 
-        assertEquals("existing_directory", existingDirectory.getInfo().getName());
+        assertEquals("existing_directory", existingSafenetDirectory.getInfo().getName());
     }
 
     @Test
     public void testDeleteExistingDirectory() {
         // PG: Setup existing directory to test
         try {
-            new CreateDirectoryCommand(webTarget, token, SafenetCommand.DRIVE, "delete_directory", new Directory()).execute();
-        } catch(HystrixBadRequestException e) {
+            new CreateDirectory(webTarget, token, SafenetCommand.DRIVE, "delete_directory", new SafenetDirectory()).execute();
+        } catch(SafenetBadRequestException e) {
             // PG:ASSERT: Already exists
         }
 
-        String message = new DeleteDirectoryCommand(webTarget, token, SafenetCommand.DRIVE, "delete_directory").execute();
+        String message = new DeleteDirectory(webTarget, token, SafenetCommand.DRIVE, "delete_directory").execute();
 
         assertEquals("OK", message);
     }
@@ -166,41 +172,67 @@ public class SafenetIntegrationTest {
     @Test
     public void testCreateNewFile() {
         try {
-            new DeleteFileCommand(webTarget, token, SafenetCommand.DRIVE, "new_file").execute();
-        } catch(HystrixBadRequestException e) {
+            new DeleteFile(webTarget, token, SafenetCommand.DRIVE, "new_file").execute();
+        } catch(SafenetBadRequestException e) {
             // PG:ASSERT: Already deleted
         }
 
         File file = new File("src/it/resources/maidsafe.svg");
-        String message = new CreateFileCommand(webTarget, token, SafenetCommand.DRIVE, "new_file", file).execute();
+        String message = new CreateFile(webTarget, token, SafenetCommand.DRIVE, "new_file", file).execute();
 
         assertEquals("OK", message);
     }
 
+    @Test(expected = SafenetBadRequestException.class)
+    public void testCreateNewFileSourceMissing() {
+        try {
+            new DeleteFile(webTarget, token, SafenetCommand.DRIVE, "new_file").execute();
+        } catch(SafenetBadRequestException e) {
+            // PG:ASSERT: Already deleted
+        }
+
+        File file = new File("src/it/resources/missingfile.txt");
+        new CreateFile(webTarget, token, SafenetCommand.DRIVE, "new_file", file).execute();
+    }
+
     @Test
     public void testGetExistingFile() {
+        long uploadFileLength = 0;
+        long downloadFileLength = 0;
+
         try {
             File uploadFile = new File("src/it/resources/maidsafe.svg");
-            new CreateFileCommand(webTarget, token, SafenetCommand.DRIVE, "existing_directory/existing_file.svg", uploadFile).execute();
-        } catch(HystrixBadRequestException e) {
+            uploadFileLength = uploadFile.length();
+            new CreateFile(webTarget, token, SafenetCommand.DRIVE, "existing_directory/existing_file.svg", uploadFile).execute();
+        } catch(SafenetBadRequestException e) {
             // PG: Already exists
         }
 
-        File downloadFile = new GetFileCommand(webTarget, token, SafenetCommand.DRIVE, "existing_directory/existing_file.svg").execute();
+        SafenetFile downloadFile = new GetFile(webTarget, token, SafenetCommand.DRIVE, "existing_directory/existing_file.svg").execute();
 
-        assertTrue(downloadFile.length() > 0);
+        try (InputStream inputStream = downloadFile.getInputStream()) {
+            byte[] buffer = new byte[1024];
+            int bytesRead;
+            while ((bytesRead = inputStream.read(buffer)) != -1) {
+                downloadFileLength += bytesRead;
+            }
+        } catch (IOException e) {
+            downloadFileLength = 0;
+        }
+
+        assertTrue(downloadFileLength == uploadFileLength);
     }
 
     @Test
     public void testDeleteExistingFile() {
         try {
             File file = new File("src/it/resources/maidsafe.svg");
-            new CreateFileCommand(webTarget, token, SafenetCommand.DRIVE, "delete_file", file).execute();
-        } catch(HystrixBadRequestException e) {
+            new CreateFile(webTarget, token, SafenetCommand.DRIVE, "delete_file", file).execute();
+        } catch(SafenetBadRequestException e) {
             // PG: Already exists
         }
 
-        String message = new DeleteFileCommand(webTarget, token, SafenetCommand.DRIVE, "delete_file").execute();
+        String message = new DeleteFile(webTarget, token, SafenetCommand.DRIVE, "delete_file").execute();
 
         assertEquals("OK", message);
     }
@@ -218,7 +250,7 @@ public class SafenetIntegrationTest {
             dns.setRootPath(SafenetCommand.DRIVE);
             dns.setServiceHomeDirPath("/");
 
-            message = new CreateLongNameAndServiceCommand(webTarget, token, dns).execute();
+            message = new CreateLongNameAndService(webTarget, token, dns).execute();
         } catch(HystrixBadRequestException e) {
             reason = e.getCause().getMessage();
             statusCode = e.getMessage();
@@ -237,12 +269,12 @@ public class SafenetIntegrationTest {
         dns.setServiceHomeDirPath("/existing_directory/");
 
         try {
-            new DeleteServiceFromLongNameCommand(webTarget, token, dns).execute();
-        } catch(HystrixBadRequestException e) {
+            new DeleteServiceFromLongName(webTarget, token, dns).execute();
+        } catch(SafenetBadRequestException e) {
             // PG:ASSERT: Already deleted
         }
 
-        String message = new CreateServiceCommand(webTarget, token, dns).execute();
+        String message = new CreateService(webTarget, token, dns).execute();
 
         assertEquals("OK", message);
     }
@@ -257,12 +289,12 @@ public class SafenetIntegrationTest {
 
         // PG: Setup existing directory to test
         try {
-            new CreateServiceCommand(webTarget, token, dns).execute();
-        } catch(HystrixBadRequestException e) {
+            new CreateService(webTarget, token, dns).execute();
+        } catch(SafenetBadRequestException e) {
             // PG:ASSERT: Already exists
         }
 
-        String message = new DeleteServiceFromLongNameCommand(webTarget, token, dns).execute();
+        String message = new DeleteServiceFromLongName(webTarget, token, dns).execute();
 
         assertEquals("OK", message);
     }

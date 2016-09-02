@@ -1,6 +1,6 @@
-package org.traktion0.safenet.client;
+package org.traktion0.safenet.client.commands;
 
-import org.traktion0.safenet.client.beans.Directory;
+import org.traktion0.safenet.client.beans.Dns;
 import org.traktion0.safenet.client.beans.Token;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
@@ -11,33 +11,29 @@ import javax.ws.rs.core.Response;
 /**
  * Created by paul on 06/08/16.
  */
-public class CreateDirectoryCommand extends SafenetCommand<String> {
+public class CreateLongNameAndService extends SafenetCommand<String> {
 
-    private static final String COMMAND_PATH = "/nfs/directory/";
+    private static final String COMMAND_PATH = "/dns";
 
     private final WebTarget webTarget;
     private final Token token;
-    private final String rootPath;
-    private final String queryPath;
-    private final Directory directory;
+    private final Dns dns;
 
-    public CreateDirectoryCommand(WebTarget webTarget, Token token, String rootPath, String queryPath, Directory directory) {
+    public CreateLongNameAndService(WebTarget webTarget, Token token, Dns dns) {
         super(String.class);
 
         this.webTarget = webTarget;
         this.token = token;
-        this.rootPath = rootPath;
-        this.queryPath = queryPath;
-        this.directory = directory;
+        this.dns = dns;
     }
 
     @Override
     protected String run() {
         Response response = webTarget
-                .path(COMMAND_PATH + rootPath +"/" + queryPath)
+                .path(COMMAND_PATH)
                 .request()
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + token.getToken())
-                .post(Entity.entity(directory, MediaType.APPLICATION_JSON));
+                .post(Entity.entity(dns, MediaType.APPLICATION_JSON));
 
         return getEntity(response);
     }

@@ -1,9 +1,8 @@
-package org.traktion0.safenet.client;
+package org.traktion0.safenet.client.commands;
 
 import com.netflix.hystrix.HystrixCommand;
 import com.netflix.hystrix.HystrixCommandGroupKey;
 import com.netflix.hystrix.HystrixCommandProperties;
-import com.netflix.hystrix.exception.HystrixBadRequestException;
 import javax.ws.rs.core.Response;
 
 /**
@@ -30,12 +29,11 @@ public abstract class SafenetCommand<R> extends HystrixCommand<R> {
         if (wasSuccessful(response)) {
             return response.readEntity(genericClass);
         } else {
-            Throwable cause = new Throwable(response.getStatusInfo().getReasonPhrase());
-            throw new HystrixBadRequestException(Integer.toString(response.getStatus()), cause);
+            throw new SafenetBadRequestException(response.getStatusInfo().getReasonPhrase(), response.getStatus());
         }
     }
 
-    private boolean wasSuccessful(Response response) {
+    protected boolean wasSuccessful(Response response) {
         return (response.getStatus() >= 200 && response.getStatus() < 300);
     }
 }

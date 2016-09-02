@@ -1,40 +1,37 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-package org.traktion0.safenet.client;
+package org.traktion0.safenet.client.commands;
 
+import org.traktion0.safenet.client.beans.Dns;
 import org.traktion0.safenet.client.beans.Token;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 
 /**
- *
- * @author paul
-  */
-public class GetAuthTokenCommand extends SafenetCommand<String> {
+ * Created by paul on 06/08/16.
+ */
+public class DeleteServiceFromLongName extends SafenetCommand<String> {
 
-    private static final String COMMAND_PATH = "auth";
+    private static final String COMMAND_PATH = "/dns";
 
     private final WebTarget webTarget;
     private final Token token;
+    private final Dns dns;
 
-    public GetAuthTokenCommand(WebTarget webTarget, Token token) {
+    public DeleteServiceFromLongName(WebTarget webTarget, Token token, Dns dns) {
         super(String.class);
 
         this.webTarget = webTarget;
         this.token = token;
+        this.dns = dns;
     }
 
     @Override
     protected String run() {
         Response response = webTarget
-                .path(COMMAND_PATH)
+                .path(COMMAND_PATH+"/"+dns.getServiceName()+"/"+dns.getLongName())
                 .request()
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + token.getToken())
-                .get();
+                .delete();
 
         return getEntity(response);
     }
@@ -44,3 +41,4 @@ public class GetAuthTokenCommand extends SafenetCommand<String> {
         return "ERROR";
     }
 }
+

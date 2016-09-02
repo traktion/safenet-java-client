@@ -1,4 +1,4 @@
-package org.traktion0.safenet.client;
+package org.traktion0.safenet.client.commands;
 
 import org.traktion0.safenet.client.beans.Dns;
 import org.traktion0.safenet.client.beans.Token;
@@ -11,7 +11,7 @@ import javax.ws.rs.core.Response;
 /**
  * Created by paul on 06/08/16.
  */
-public class CreateServiceCommand extends SafenetCommand<String> {
+public class CreateService extends SafenetCommand<String> {
 
     private static final String COMMAND_PATH = "/dns";
 
@@ -19,7 +19,7 @@ public class CreateServiceCommand extends SafenetCommand<String> {
     private final Token token;
     private final Dns dns;
 
-    public CreateServiceCommand(WebTarget webTarget, Token token, Dns dns) {
+    public CreateService(WebTarget webTarget, Token token, Dns dns) {
         super(String.class);
 
         this.webTarget = webTarget;

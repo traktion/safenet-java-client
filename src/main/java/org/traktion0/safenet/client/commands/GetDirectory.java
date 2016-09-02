@@ -3,30 +3,30 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.traktion0.safenet.client;
+package org.traktion0.safenet.client.commands;
 
+import org.traktion0.safenet.client.beans.SafenetDirectory;
 import org.traktion0.safenet.client.beans.Token;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
-import java.io.File;
 
 /**
  *
  * @author paul
  */
-public class GetFileCommand extends SafenetCommand<File> {
+public class GetDirectory extends SafenetCommand<SafenetDirectory> {
 
-    private static final String COMMAND_PATH = "/nfs/file/";
+    private static final String COMMAND_PATH = "/nfs/directory/";
 
     private final WebTarget webTarget;
     private final Token token;
     private final String rootPath;
     private final String queryPath;
 
-    public GetFileCommand(WebTarget webTarget, Token token, String rootPath, String queryPath) {
-        super(File.class);
+    public GetDirectory(WebTarget webTarget, Token token, String rootPath, String queryPath) {
+        super(SafenetDirectory.class);
 
         this.webTarget = webTarget;
         this.token = token;
@@ -35,7 +35,7 @@ public class GetFileCommand extends SafenetCommand<File> {
     }
 
     @Override
-    protected File run() {
+    protected SafenetDirectory run() {
         Response response = webTarget
                 .path(COMMAND_PATH + rootPath + "/" + queryPath)
                 .request(MediaType.TEXT_PLAIN)
@@ -46,7 +46,7 @@ public class GetFileCommand extends SafenetCommand<File> {
     }
 
     @Override
-    protected File getFallback() {
-        return new File("");
+    protected SafenetDirectory getFallback() {
+        return new SafenetDirectory();
     }
 }

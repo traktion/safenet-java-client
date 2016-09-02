@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.traktion0.safenet.client;
+package org.traktion0.safenet.client.commands;
 
 import org.traktion0.safenet.client.beans.Auth;
 import org.traktion0.safenet.client.beans.Token;
@@ -16,14 +16,14 @@ import javax.ws.rs.core.Response;
  *
  * @author paul
   */
-public class CreateAuthTokenCommand extends SafenetCommand<Token> {
+public class CreateAuthToken extends SafenetCommand<Token> {
 
     private static final String COMMAND_PATH = "auth";
 
     private final WebTarget webTarget;
     private final Auth auth;
 
-    public CreateAuthTokenCommand(WebTarget webTarget, Auth auth) {
+    public CreateAuthToken(WebTarget webTarget, Auth auth) {
         super(Token.class);
 
         this.webTarget = webTarget;

@@ -7,13 +7,13 @@ import java.util.List;
  * Created by paul on 06/08/16.
  */
 @XmlRootElement
-public class Directory {
+public class SafenetDirectory {
 
     private Info info;
     private List<Info> files;
     private List<Info> subDirectories;
 
-    public Directory() {
+    public SafenetDirectory() {
     }
 
     public Info getInfo() {
@@ -43,13 +43,13 @@ public class Directory {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Directory)) return false;
+        if (!(o instanceof SafenetDirectory)) return false;
 
-        Directory directory = (Directory) o;
+        SafenetDirectory safenetDirectory = (SafenetDirectory) o;
 
-        if (getInfo() != null ? !getInfo().equals(directory.getInfo()) : directory.getInfo() != null) return false;
-        if (getFiles() != null ? !getFiles().equals(directory.getFiles()) : directory.getFiles() != null) return false;
-        return getSubDirectories() != null ? getSubDirectories().equals(directory.getSubDirectories()) : directory.getSubDirectories() == null;
+        if (getInfo() != null ? !getInfo().equals(safenetDirectory.getInfo()) : safenetDirectory.getInfo() != null) return false;
+        if (getFiles() != null ? !getFiles().equals(safenetDirectory.getFiles()) : safenetDirectory.getFiles() != null) return false;
+        return getSubDirectories() != null ? getSubDirectories().equals(safenetDirectory.getSubDirectories()) : safenetDirectory.getSubDirectories() == null;
 
     }
 
@@ -63,7 +63,7 @@ public class Directory {
 
     @Override
     public String toString() {
-        return "Directory{" +
+        return "SafenetDirectory{" +
                 "info=" + info +
                 ", files=" + files +
                 ", subDirectories=" + subDirectories +
