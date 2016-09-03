@@ -22,7 +22,7 @@ public class CreateAuthToken extends SafenetCommand<Auth> {
     private final Auth preAuth;
 
     public CreateAuthToken(WebTarget webTarget, Auth preAuth) {
-        super(Auth.class, webTarget, preAuth, "");
+        super(Auth.class, webTarget, preAuth);
 
         this.preAuth = preAuth;
     }

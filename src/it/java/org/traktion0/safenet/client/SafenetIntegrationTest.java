@@ -39,6 +39,7 @@ public class SafenetIntegrationTest {
 
     private static Auth auth;
     private static WebTarget webTarget;
+    private static SafenetFactory safenet;
     
     @BeforeClass
     public static void setUpClass() {
@@ -58,12 +59,13 @@ public class SafenetIntegrationTest {
         Client client = ClientBuilder.newClient();
         client.property(ClientProperties.REQUEST_ENTITY_PROCESSING, "CHUNKED");
         webTarget = client.target(LAUNCHER_URL);
-        auth = new CreateAuthToken(webTarget, auth).execute();
+
+        safenet = SafenetFactory.getInstance(webTarget, auth);
     }
     
     @AfterClass
     public static void tearDownClass() {
-        new DeleteAuthToken(webTarget, auth).execute();
+        safenet.makeDeleteAuthTokenCommand().execute();
     }
     
     @Before
@@ -95,15 +97,15 @@ public class SafenetIntegrationTest {
 
     @Test
     public void testDeleteExistingAuthToken() {
-        Auth tempAuth = new CreateAuthToken(webTarget, auth).execute();
-        String authMessage = new DeleteAuthToken(webTarget, tempAuth).execute();
+        SafenetFactory safenetTemp = SafenetFactory.getInstance(webTarget, auth);
+        String authMessage = safenetTemp.makeDeleteAuthTokenCommand().execute();
 
         assertEquals("OK", authMessage);
     }
 
     @Test
     public void testValidateExistingAuthToken() {
-        String authMessage = new GetAuthToken(webTarget, auth).execute();
+        String authMessage = safenet.makeGetAuthTokenCommand().execute();
 
         assertEquals("OK", authMessage);
     }
@@ -114,7 +116,7 @@ public class SafenetIntegrationTest {
         int statusCode = 0;
 
         try {
-            new GetDirectory(webTarget, auth, "missing_directory").execute();
+            safenet.makeGetDirectoryCommand("missing_directory").execute();
         } catch(SafenetBadRequestException e) {
             reason = e.getDescription();
             statusCode = e.getStatusCode();
@@ -128,12 +130,12 @@ public class SafenetIntegrationTest {
     public void testCreateNewDirectory() {
         // PG: Remove new directory if it already exists
         try {
-            new DeleteDirectory(webTarget, auth, "new_directory").execute();
+            safenet.makeDeleteDirectoryCommand("new_directory").execute();
         } catch(SafenetBadRequestException e) {
             // PG:ASSERT: Already deleted
         }
 
-        String message = new CreateDirectory(webTarget, auth, "new_directory", new SafenetDirectory()).execute();
+        String message = safenet.makeCreateDirectoryCommand("new_directory", new SafenetDirectory()).execute();
 
         assertEquals("OK", message);
     }
@@ -142,12 +144,12 @@ public class SafenetIntegrationTest {
     public void testGetExistingDirectory() {
         // PG: Setup existing directory to test
         try {
-            new CreateDirectory(webTarget, auth, "existing_directory", new SafenetDirectory()).execute();
+            safenet.makeCreateDirectoryCommand("existing_directory", new SafenetDirectory()).execute();
         } catch(SafenetBadRequestException e) {
             // PG:ASSERT: Already exists
         }
 
-        SafenetDirectory existingSafenetDirectory = new GetDirectory(webTarget, auth, "existing_directory").execute();
+        SafenetDirectory existingSafenetDirectory = safenet.makeGetDirectoryCommand("existing_directory").execute();
 
         assertEquals("existing_directory", existingSafenetDirectory.getInfo().getName());
     }
@@ -156,12 +158,12 @@ public class SafenetIntegrationTest {
     public void testDeleteExistingDirectory() {
         // PG: Setup existing directory to test
         try {
-            new CreateDirectory(webTarget, auth, "delete_directory", new SafenetDirectory()).execute();
+            safenet.makeCreateDirectoryCommand("delete_directory", new SafenetDirectory()).execute();
         } catch(SafenetBadRequestException e) {
             // PG:ASSERT: Already exists
         }
 
-        String message = new DeleteDirectory(webTarget, auth, "delete_directory").execute();
+        String message = safenet.makeDeleteDirectoryCommand("delete_directory").execute();
 
         assertEquals("OK", message);
     }
@@ -171,13 +173,13 @@ public class SafenetIntegrationTest {
     @Test
     public void testCreateNewFile() {
         try {
-            new DeleteFile(webTarget, auth, "new_file").execute();
+            safenet.makeDeleteFileCommand("new_file").execute();
         } catch(SafenetBadRequestException e) {
             // PG:ASSERT: Already deleted
         }
 
         File file = new File("src/it/resources/maidsafe.svg");
-        String message = new CreateFile(webTarget, auth, "new_file", file).execute();
+        String message = safenet.makeCreateFileCommand("new_file", file).execute();
 
         assertEquals("OK", message);
     }
@@ -185,13 +187,13 @@ public class SafenetIntegrationTest {
     @Test(expected = SafenetBadRequestException.class)
     public void testCreateNewFileSourceMissing() {
         try {
-            new DeleteFile(webTarget, auth, "new_file").execute();
+            safenet.makeDeleteFileCommand("new_file").execute();
         } catch(SafenetBadRequestException e) {
             // PG:ASSERT: Already deleted
         }
 
         File file = new File("src/it/resources/missingfile.txt");
-        new CreateFile(webTarget, auth, "new_file", file).execute();
+        safenet.makeCreateFileCommand("new_file", file).execute();
     }
 
     @Test
@@ -202,12 +204,12 @@ public class SafenetIntegrationTest {
         try {
             File uploadFile = new File("src/it/resources/maidsafe.svg");
             uploadFileLength = uploadFile.length();
-            new CreateFile(webTarget, auth, "existing_directory/existing_file.svg", uploadFile).execute();
+            safenet.makeCreateFileCommand("existing_directory/existing_file.svg", uploadFile).execute();
         } catch(SafenetBadRequestException e) {
             // PG: Already exists
         }
 
-        SafenetFile downloadFile = new GetFile(webTarget, auth, "existing_directory/existing_file.svg").execute();
+        SafenetFile downloadFile = safenet.makeGetFileCommand("existing_directory/existing_file.svg").execute();
 
         try (InputStream inputStream = downloadFile.getInputStream()) {
             byte[] buffer = new byte[1024];
@@ -226,12 +228,12 @@ public class SafenetIntegrationTest {
     public void testDeleteExistingFile() {
         try {
             File file = new File("src/it/resources/maidsafe.svg");
-            new CreateFile(webTarget, auth, "delete_file", file).execute();
+            safenet.makeCreateFileCommand("delete_file", file).execute();
         } catch(SafenetBadRequestException e) {
             // PG: Already exists
         }
 
-        String message = new DeleteFile(webTarget, auth, "delete_file").execute();
+        String message = safenet.makeDeleteFileCommand("delete_file").execute();
 
         assertEquals("OK", message);
     }
@@ -268,12 +270,12 @@ public class SafenetIntegrationTest {
         dns.setServiceHomeDirPath("/existing_directory/");
 
         try {
-            new DeleteServiceFromLongName(webTarget, auth, dns).execute();
+            safenet.makeDeleteServiceFromLongNameCommand(dns).execute();
         } catch(SafenetBadRequestException e) {
             // PG:ASSERT: Already deleted
         }
 
-        String message = new CreateService(webTarget, auth, dns).execute();
+        String message = safenet.makeCreateServiceCommand(dns).execute();
 
         assertEquals("OK", message);
     }
@@ -288,12 +290,12 @@ public class SafenetIntegrationTest {
 
         // PG: Setup existing directory to test
         try {
-            new CreateService(webTarget, auth, dns).execute();
+            safenet.makeCreateServiceCommand(dns).execute();
         } catch(SafenetBadRequestException e) {
             // PG:ASSERT: Already exists
         }
 
-        String message = new DeleteServiceFromLongName(webTarget, auth, dns).execute();
+        String message = safenet.makeDeleteServiceFromLongNameCommand(dns).execute();
 
         assertEquals("OK", message);
     }

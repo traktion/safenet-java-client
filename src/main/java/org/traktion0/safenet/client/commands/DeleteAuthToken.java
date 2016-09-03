@@ -13,7 +13,7 @@ public class DeleteAuthToken extends SafenetCommand<String> {
     private static final String COMMAND_PATH = "/auth";
 
     public DeleteAuthToken(WebTarget webTarget, Auth auth) {
-        super(String.class, webTarget, auth, "");
+        super(String.class, webTarget, auth);
 
     }
 

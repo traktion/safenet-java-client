@@ -16,7 +16,7 @@ public class DeleteServiceFromLongName extends SafenetCommand<String> {
     private final Dns dns;
 
     public DeleteServiceFromLongName(WebTarget webTarget, Auth auth, Dns dns) {
-        super(String.class, webTarget, auth, "");
+        super(String.class, webTarget, auth);
         this.dns = dns;
     }
 

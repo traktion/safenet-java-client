@@ -18,7 +18,7 @@ public class CreateService extends SafenetCommand<String> {
     private final Dns dns;
 
     public CreateService(WebTarget webTarget, Auth auth, Dns dns) {
-        super(String.class, webTarget, auth, "");
+        super(String.class, webTarget, auth);
 
         this.dns = dns;
     }
