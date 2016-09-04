@@ -30,11 +30,11 @@ public class CreateFile extends SafenetCommand<String> {
     }
 
     @Override
-    protected String run() {
+    protected String getResponse() {
         try (FileInputStream inputStream = new FileInputStream(file)) {
             return doRequest(inputStream);
         } catch (IOException e) {
-            throw new SafenetBadRequestException("Failed to open file input stream", 500, e);
+            throw new SafenetBadRequestException("Failed to open file input stream", e);
         }
     }
 
@@ -46,11 +46,6 @@ public class CreateFile extends SafenetCommand<String> {
                 .post(Entity.entity(inputStream, MediaType.APPLICATION_OCTET_STREAM));
 
         return getEntity(response);
-    }
-
-    @Override
-    protected String getFallback() {
-        return "ERROR";
     }
 
     private MultivaluedHashMap<String, Object> getHeaders() {

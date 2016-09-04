@@ -2,6 +2,8 @@ package org.traktion0.safenet.client.commands;
 
 import com.netflix.hystrix.exception.HystrixBadRequestException;
 
+import javax.ws.rs.ClientErrorException;
+
 /**
  * Created by paul on 01/09/16.
  */
@@ -10,18 +12,16 @@ public class SafenetBadRequestException extends HystrixBadRequestException {
     private final String description;
     private final int statusCode;
 
-    public SafenetBadRequestException(String description, int statusCode) {
-        super(Integer.toString(statusCode) + ": " + description);
+    public SafenetBadRequestException(String message, Throwable cause) {
+        super(message, cause);
 
-        this.description = description;
-        this.statusCode = statusCode;
-    }
-
-    public SafenetBadRequestException(String description, int statusCode, Throwable cause) {
-        super(Integer.toString(statusCode) + ": " + description, cause);
-
-        this.description = description;
-        this.statusCode = statusCode;
+        if (cause instanceof ClientErrorException) {
+            this.statusCode = ((ClientErrorException) cause).getResponse().getStatus();
+            this.description = ((ClientErrorException) cause).getResponse().getStatusInfo().getReasonPhrase();
+        } else {
+            this.statusCode = 500;
+            this.description = message;
+        }
     }
 
     public String getDescription() {

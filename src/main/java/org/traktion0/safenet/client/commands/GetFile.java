@@ -26,7 +26,7 @@ public class GetFile extends SafenetCommand<SafenetFile> {
     }
 
     @Override
-    protected SafenetFile run() {
+    protected SafenetFile getResponse() {
         Response response = doRequest();
         return formatSafenetFile(response);
     }
@@ -53,20 +53,11 @@ public class GetFile extends SafenetCommand<SafenetFile> {
     }
 
     @Override
-    protected SafenetFile getFallback() {
-        return new SafenetFile();
-    }
-
-    @Override
     protected String getCommandPath() {
         return COMMAND_PATH;
     }
 
     private InputStream getInputStream(Response response) {
-        if (wasSuccessful(response)) {
-            return response.readEntity(InputStream.class);
-        } else {
-            throw new SafenetBadRequestException(response.getStatusInfo().getReasonPhrase(), response.getStatus());
-        }
+        return response.readEntity(InputStream.class);
     }
 }

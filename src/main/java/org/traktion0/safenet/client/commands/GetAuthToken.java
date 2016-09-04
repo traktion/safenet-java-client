@@ -23,7 +23,7 @@ public class GetAuthToken extends SafenetCommand<String> {
     }
 
     @Override
-    protected String run() {
+    protected String getResponse() {
         Response response = getWebTarget()
                 .path(getPath())
                 .request()
@@ -31,11 +31,6 @@ public class GetAuthToken extends SafenetCommand<String> {
                 .get();
 
         return getEntity(response);
-    }
-
-    @Override
-    protected String getFallback() {
-        return "ERROR";
     }
 
     @Override

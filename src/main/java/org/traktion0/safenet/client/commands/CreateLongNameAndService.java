@@ -25,7 +25,7 @@ public class CreateLongNameAndService extends SafenetCommand<String> {
     }
 
     @Override
-    protected String run() {
+    protected String getResponse() {
         Response response = getWebTarget()
                 .path(getPath())
                 .request()
@@ -33,11 +33,6 @@ public class CreateLongNameAndService extends SafenetCommand<String> {
                 .post(Entity.entity(dns, MediaType.APPLICATION_JSON));
 
         return getEntity(response);
-    }
-
-    @Override
-    protected String getFallback() {
-        return "ERROR";
     }
 
     @Override

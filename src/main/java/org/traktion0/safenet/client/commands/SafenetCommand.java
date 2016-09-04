@@ -36,16 +36,18 @@ public abstract class SafenetCommand<R> extends HystrixCommand<R> {
         this.queryPath = queryPath;
     }
 
-    protected R getEntity(Response response) {
-        if (wasSuccessful(response)) {
-            return response.readEntity(genericClass);
-        } else {
-            throw new SafenetBadRequestException(response.getStatusInfo().getReasonPhrase(), response.getStatus());
+    protected R run() {
+        try {
+            return getResponse();
+        } catch (Exception e) {
+            throw new SafenetBadRequestException(e.getCause().getMessage(), e.getCause());
         }
     }
 
-    protected boolean wasSuccessful(Response response) {
-        return (response.getStatus() >= 200 && response.getStatus() < 300);
+    abstract protected R getResponse();
+
+    protected R getEntity(Response response) {
+        return response.readEntity(genericClass);
     }
 
     protected String getPath() {

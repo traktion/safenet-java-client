@@ -9,6 +9,7 @@ import org.glassfish.jersey.client.ClientProperties;
 import org.junit.*;
 import org.traktion0.safenet.client.beans.*;
 import org.traktion0.safenet.client.commands.DeleteAuthToken;
+import org.traktion0.safenet.client.commands.ErrorResponseFilter;
 import org.traktion0.safenet.client.commands.SafenetBadRequestException;
 import org.traktion0.safenet.client.commands.SafenetFactory;
 
@@ -51,9 +52,8 @@ public class SafenetIntegrationTest {
                 permissions
         );
 
-        System.setProperty("sun.net.http.allowRestrictedHeaders", "true");
-
         Client client = ClientBuilder.newClient();
+        client.register(ErrorResponseFilter.class);
         client.property(ClientProperties.REQUEST_ENTITY_PROCESSING, "CHUNKED");
         webTarget = client.target(LAUNCHER_URL);
 

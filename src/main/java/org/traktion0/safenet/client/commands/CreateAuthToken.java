@@ -26,7 +26,7 @@ public class CreateAuthToken extends SafenetCommand<Auth> {
     }
 
     @Override
-    protected Auth run() {
+    protected Auth getResponse() {
         Response response = getWebTarget()
                 .path(getPath())
                 .request()
@@ -36,11 +36,6 @@ public class CreateAuthToken extends SafenetCommand<Auth> {
         auth.setApp(preAuth.getApp());
 
         return auth;
-    }
-
-    @Override
-    protected Auth getFallback() {
-        return new Auth();
     }
 
     @Override

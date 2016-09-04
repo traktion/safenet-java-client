@@ -25,7 +25,7 @@ public class GetDirectory extends SafenetCommand<SafenetDirectory> {
     }
 
     @Override
-    protected SafenetDirectory run() {
+    protected SafenetDirectory getResponse() {
         Response response = getWebTarget()
                 .path(getPath())
                 .request(MediaType.TEXT_PLAIN)
@@ -33,11 +33,6 @@ public class GetDirectory extends SafenetCommand<SafenetDirectory> {
                 .get();
 
         return getEntity(response);
-    }
-
-    @Override
-    protected SafenetDirectory getFallback() {
-        return new SafenetDirectory();
     }
 
     @Override

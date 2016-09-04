@@ -18,7 +18,7 @@ public class DeleteDirectory extends SafenetCommand<String> {
     }
 
     @Override
-    protected String run() {
+    protected String getResponse() {
         Response response = getWebTarget()
                 .path(getPath())
                 .request()
@@ -26,11 +26,6 @@ public class DeleteDirectory extends SafenetCommand<String> {
                 .delete();
 
         return getEntity(response);
-    }
-
-    @Override
-    protected String getFallback() {
-        return "ERROR";
     }
 
     @Override
