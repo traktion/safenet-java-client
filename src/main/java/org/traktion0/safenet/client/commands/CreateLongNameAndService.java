@@ -2,6 +2,7 @@ package org.traktion0.safenet.client.commands;
 
 import org.traktion0.safenet.client.beans.Auth;
 import org.traktion0.safenet.client.beans.Dns;
+
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.HttpHeaders;
@@ -13,7 +14,7 @@ import javax.ws.rs.core.Response;
  */
 public class CreateLongNameAndService extends SafenetCommand<String> {
 
-    private static final String COMMAND_PATH = "/dns";
+    private static final String COMMAND_PATH = "/dns/";
 
     private final Dns dns;
 

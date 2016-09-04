@@ -6,19 +6,17 @@
 package org.traktion0.safenet.client.commands;
 
 import org.traktion0.safenet.client.beans.Auth;
-import javax.ws.rs.core.MediaType;
+
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 /**
- *
  * @author paul
-  */
+ */
 public class CreateAuthToken extends SafenetCommand<Auth> {
-
     private static final String COMMAND_PATH = "/auth";
-
     private final Auth preAuth;
 
     public CreateAuthToken(WebTarget webTarget, Auth preAuth) {
@@ -26,7 +24,7 @@ public class CreateAuthToken extends SafenetCommand<Auth> {
 
         this.preAuth = preAuth;
     }
-    
+
     @Override
     protected Auth run() {
         Response response = getWebTarget()

@@ -47,8 +47,10 @@ public class SafenetDirectory {
 
         SafenetDirectory safenetDirectory = (SafenetDirectory) o;
 
-        if (getInfo() != null ? !getInfo().equals(safenetDirectory.getInfo()) : safenetDirectory.getInfo() != null) return false;
-        if (getFiles() != null ? !getFiles().equals(safenetDirectory.getFiles()) : safenetDirectory.getFiles() != null) return false;
+        if (getInfo() != null ? !getInfo().equals(safenetDirectory.getInfo()) : safenetDirectory.getInfo() != null)
+            return false;
+        if (getFiles() != null ? !getFiles().equals(safenetDirectory.getFiles()) : safenetDirectory.getFiles() != null)
+            return false;
         return getSubDirectories() != null ? getSubDirectories().equals(safenetDirectory.getSubDirectories()) : safenetDirectory.getSubDirectories() == null;
 
     }

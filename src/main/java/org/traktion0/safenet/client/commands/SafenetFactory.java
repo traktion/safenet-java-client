@@ -3,6 +3,7 @@ package org.traktion0.safenet.client.commands;
 import org.traktion0.safenet.client.beans.Auth;
 import org.traktion0.safenet.client.beans.Dns;
 import org.traktion0.safenet.client.beans.SafenetDirectory;
+
 import javax.ws.rs.client.WebTarget;
 import java.io.File;
 
@@ -28,6 +29,10 @@ public class SafenetFactory {
 
     public CreateAuthToken makeCreateAuthTokenCommand() {
         return new CreateAuthToken(webTarget, auth);
+    }
+
+    public CreateDirectory makeCreateDirectoryCommand(String queryPath) {
+        return makeCreateDirectoryCommand(queryPath, new SafenetDirectory());
     }
 
     public CreateDirectory makeCreateDirectoryCommand(String queryPath, SafenetDirectory safenetDirectory) {

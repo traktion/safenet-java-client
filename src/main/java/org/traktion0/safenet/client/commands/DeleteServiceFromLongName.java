@@ -2,6 +2,7 @@ package org.traktion0.safenet.client.commands;
 
 import org.traktion0.safenet.client.beans.Auth;
 import org.traktion0.safenet.client.beans.Dns;
+
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
@@ -11,7 +12,7 @@ import javax.ws.rs.core.Response;
  */
 public class DeleteServiceFromLongName extends SafenetCommand<String> {
 
-    private static final String COMMAND_PATH = "/dns";
+    private static final String COMMAND_PATH = "/dns/";
 
     private final Dns dns;
 
@@ -38,12 +39,12 @@ public class DeleteServiceFromLongName extends SafenetCommand<String> {
 
     @Override
     protected String getCommandPath() {
-        return COMMAND_PATH+"/";
+        return COMMAND_PATH;
     }
 
     @Override
     protected String getQueryPath() {
-        return dns.getServiceName()+"/"+dns.getLongName();
+        return dns.getServiceName() + "/" + dns.getLongName();
     }
 }
 

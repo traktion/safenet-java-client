@@ -7,13 +7,13 @@ package org.traktion0.safenet.client.commands;
 
 import org.traktion0.safenet.client.beans.Auth;
 import org.traktion0.safenet.client.beans.SafenetDirectory;
+
+import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
 
 /**
- *
  * @author paul
  */
 public class GetDirectory extends SafenetCommand<SafenetDirectory> {
@@ -42,6 +42,6 @@ public class GetDirectory extends SafenetCommand<SafenetDirectory> {
 
     @Override
     protected String getCommandPath() {
-        return COMMAND_PATH + getRootPath() + "/";
+        return COMMAND_PATH;
     }
 }

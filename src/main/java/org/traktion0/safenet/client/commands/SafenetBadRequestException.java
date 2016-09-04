@@ -11,14 +11,14 @@ public class SafenetBadRequestException extends HystrixBadRequestException {
     private final int statusCode;
 
     public SafenetBadRequestException(String description, int statusCode) {
-        super(Integer.toString(statusCode)+": "+description);
+        super(Integer.toString(statusCode) + ": " + description);
 
         this.description = description;
         this.statusCode = statusCode;
     }
 
     public SafenetBadRequestException(String description, int statusCode, Throwable cause) {
-        super(Integer.toString(statusCode)+": "+description, cause);
+        super(Integer.toString(statusCode) + ": " + description, cause);
 
         this.description = description;
         this.statusCode = statusCode;

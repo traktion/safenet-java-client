@@ -8,14 +8,13 @@ package org.traktion0.safenet.client.commands;
 import org.traktion0.safenet.client.beans.Auth;
 import org.traktion0.safenet.client.beans.SafenetFile;
 
+import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
 import java.io.InputStream;
 
 /**
- *
  * @author paul
  */
 public class GetFile extends SafenetCommand<SafenetFile> {
@@ -34,10 +33,10 @@ public class GetFile extends SafenetCommand<SafenetFile> {
 
     private Response doRequest() {
         return getWebTarget()
-                    .path(getPath())
-                    .request(MediaType.TEXT_PLAIN)
-                    .header(HttpHeaders.AUTHORIZATION, "Bearer " + getAuth().getToken())
-                    .get();
+                .path(getPath())
+                .request(MediaType.TEXT_PLAIN)
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + getAuth().getToken())
+                .get();
     }
 
     private SafenetFile formatSafenetFile(Response response) {
@@ -60,7 +59,7 @@ public class GetFile extends SafenetCommand<SafenetFile> {
 
     @Override
     protected String getCommandPath() {
-        return COMMAND_PATH + getRootPath() + "/";
+        return COMMAND_PATH;
     }
 
     private InputStream getInputStream(Response response) {

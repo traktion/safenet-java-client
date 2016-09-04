@@ -2,6 +2,7 @@ package org.traktion0.safenet.client.commands;
 
 import org.traktion0.safenet.client.beans.Auth;
 import org.traktion0.safenet.client.beans.SafenetDirectory;
+
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.HttpHeaders;
@@ -17,7 +18,7 @@ public class CreateDirectory extends SafenetCommand<String> {
 
     private final SafenetDirectory safenetDirectory;
 
-    public CreateDirectory(WebTarget webTarget, Auth auth,String queryPath, SafenetDirectory safenetDirectory) {
+    public CreateDirectory(WebTarget webTarget, Auth auth, String queryPath, SafenetDirectory safenetDirectory) {
         super(String.class, webTarget, auth, queryPath);
 
         this.safenetDirectory = safenetDirectory;
@@ -41,6 +42,6 @@ public class CreateDirectory extends SafenetCommand<String> {
 
     @Override
     protected String getCommandPath() {
-        return COMMAND_PATH + getRootPath() +"/";
+        return COMMAND_PATH;
     }
 }

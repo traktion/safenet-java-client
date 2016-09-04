@@ -1,6 +1,7 @@
 package org.traktion0.safenet.client.commands;
 
 import org.traktion0.safenet.client.beans.Auth;
+
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
@@ -34,7 +35,7 @@ public class DeleteFile extends SafenetCommand<String> {
 
     @Override
     protected String getCommandPath() {
-        return COMMAND_PATH + getRootPath() +"/";
+        return COMMAND_PATH;
     }
 }
 

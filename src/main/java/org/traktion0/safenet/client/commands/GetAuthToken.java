@@ -6,14 +6,14 @@
 package org.traktion0.safenet.client.commands;
 
 import org.traktion0.safenet.client.beans.Auth;
+
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 
 /**
- *
  * @author paul
-  */
+ */
 public class GetAuthToken extends SafenetCommand<String> {
 
     private static final String COMMAND_PATH = "/auth";

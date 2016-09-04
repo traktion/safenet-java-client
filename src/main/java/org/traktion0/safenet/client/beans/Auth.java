@@ -14,7 +14,11 @@ public class Auth {
     private String token = "";
 
     public Auth() {
-        this(new App(), new String[] {}, "");
+        this(new App(), new String[]{}, "");
+    }
+
+    public Auth(App app) {
+        this(app, new String[]{}, "");
     }
 
     public Auth(App app, String[] permissions) {
