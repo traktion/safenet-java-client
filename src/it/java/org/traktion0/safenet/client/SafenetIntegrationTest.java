@@ -84,7 +84,7 @@ public class SafenetIntegrationTest {
 
             new DeleteAuthToken(webTarget, missingToken).execute();
         } catch (SafenetBadRequestException e) {
-            reason = e.getDescription();
+            reason = e.getReason();
             statusCode = e.getStatusCode();
         }
 
@@ -124,7 +124,7 @@ public class SafenetIntegrationTest {
         try {
             safenet.makeGetDirectoryCommand("app/missing_directory").execute();
         } catch (SafenetBadRequestException e) {
-            reason = e.getDescription();
+            reason = e.getReason();
             statusCode = e.getStatusCode();
         }
 

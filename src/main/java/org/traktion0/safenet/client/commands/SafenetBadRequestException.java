@@ -9,7 +9,7 @@ import javax.ws.rs.ClientErrorException;
  */
 public class SafenetBadRequestException extends HystrixBadRequestException {
 
-    private final String description;
+    private final String reason;
     private final int statusCode;
 
     public SafenetBadRequestException(String message, Throwable cause) {
@@ -17,15 +17,15 @@ public class SafenetBadRequestException extends HystrixBadRequestException {
 
         if (cause instanceof ClientErrorException) {
             this.statusCode = ((ClientErrorException) cause).getResponse().getStatus();
-            this.description = ((ClientErrorException) cause).getResponse().getStatusInfo().getReasonPhrase();
+            this.reason = ((ClientErrorException) cause).getResponse().getStatusInfo().getReasonPhrase();
         } else {
             this.statusCode = 500;
-            this.description = message;
+            this.reason = message;
         }
     }
 
-    public String getDescription() {
-        return description;
+    public String getReason() {
+        return reason;
     }
 
     public int getStatusCode() {
