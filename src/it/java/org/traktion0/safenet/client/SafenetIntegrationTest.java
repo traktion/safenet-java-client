@@ -8,10 +8,7 @@ package org.traktion0.safenet.client;
 import org.glassfish.jersey.client.ClientProperties;
 import org.junit.*;
 import org.traktion0.safenet.client.beans.*;
-import org.traktion0.safenet.client.commands.DeleteAuthToken;
-import org.traktion0.safenet.client.commands.ErrorResponseFilter;
-import org.traktion0.safenet.client.commands.SafenetBadRequestException;
-import org.traktion0.safenet.client.commands.SafenetFactory;
+import org.traktion0.safenet.client.commands.*;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
@@ -58,20 +55,21 @@ public class SafenetIntegrationTest {
         webTarget = client.target(LAUNCHER_URL);
 
         safenet = SafenetFactory.getInstance(webTarget, auth);
+
+        safenet.makeCreateDirectoryCommand("app/existing_directory").execute();
     }
 
     @AfterClass
     public static void tearDownClass() {
+        safenet.makeDeleteDirectoryCommand("app/existing_directory").execute();
         safenet.makeDeleteAuthTokenCommand().execute();
     }
 
     @Before
-    public void setUp() {
-    }
+    public void setUp() {}
 
     @After
-    public void tearDown() {
-    }
+    public void tearDown() {}
 
     @Test
     public void testDeleteMissingAuthToken() {
@@ -244,6 +242,15 @@ public class SafenetIntegrationTest {
         assertEquals("OK", message);
     }
 
+    @Test
+    public void testCreateAndDeleteLongName() {
+        String createMessage = safenet.makeCreateLongNameCommand("traktion123").execute();
+        String deleteMessage = safenet.makeDeleteLongNameCommand("traktion123").execute();
+
+        assertEquals("OK", createMessage);
+        assertEquals("OK", deleteMessage);
+    }
+
     /*@Test
     public void testCreateLongNameAndService() {
         String message;
@@ -292,7 +299,7 @@ public class SafenetIntegrationTest {
         dns.setLongName("traktion0");
         dns.setServiceName("existingservice"); // PG: mustn't contain underscores
         dns.setRootPath("app");
-        dns.setServiceHomeDirPath("/existing_directory/");
+        dns.setServiceHomeDirPath("/existing_directory");
 
         // PG: Setup existing directory to test
         try {

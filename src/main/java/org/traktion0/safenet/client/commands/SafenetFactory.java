@@ -43,6 +43,10 @@ public class SafenetFactory {
         return new CreateFile(webTarget, auth, queryPath, file);
     }
 
+    public CreateLongName makeCreateLongNameCommand(String longName) {
+        return new CreateLongName(webTarget, auth, longName);
+    }
+
     public CreateLongNameAndService makeCreateLongNameAndServiceCommand(Dns dns) {
         return new CreateLongNameAndService(webTarget, auth, dns);
     }
@@ -61,6 +65,10 @@ public class SafenetFactory {
 
     public DeleteFile makeDeleteFileCommand(String queryPath) {
         return new DeleteFile(webTarget, auth, queryPath);
+    }
+
+    public DeleteLongName makeDeleteLongNameCommand(String longName) {
+        return new DeleteLongName(webTarget, auth, longName);
     }
 
     public DeleteServiceFromLongName makeDeleteServiceFromLongNameCommand(Dns dns) {
