@@ -86,4 +86,8 @@ public class SafenetFactory {
     public GetFile makeGetFileCommand(String queryPath) {
         return new GetFile(webTarget, auth, queryPath);
     }
+
+    public GetFileAttributes makeGetFileAttributesCommand(String queryPath) {
+        return new GetFileAttributes(webTarget, auth, queryPath);
+    }
 }

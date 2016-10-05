@@ -2,7 +2,7 @@ package org.traktion0.safenet.client.beans;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.io.InputStream;
-import java.util.Date;
+import java.time.OffsetDateTime;
 
 /**
  * Created by paul on 01/09/16.
@@ -14,8 +14,8 @@ public class SafenetFile {
     private String contentRange;
     private String acceptRanges;
     private long contentLength;
-    private Date createdOn;
-    private Date lastModified;
+    private OffsetDateTime createdOn;
+    private OffsetDateTime lastModified;
     private String contentType;
     private String metadata;
 
@@ -54,19 +54,19 @@ public class SafenetFile {
         this.contentLength = contentLength;
     }
 
-    public Date getCreatedOn() {
+    public OffsetDateTime getCreatedOn() {
         return createdOn;
     }
 
-    public void setCreatedOn(Date createdOn) {
+    public void setCreatedOn(OffsetDateTime createdOn) {
         this.createdOn = createdOn;
     }
 
-    public Date getLastModified() {
+    public OffsetDateTime getLastModified() {
         return lastModified;
     }
 
-    public void setLastModified(Date lastModified) {
+    public void setLastModified(OffsetDateTime lastModified) {
         this.lastModified = lastModified;
     }
 

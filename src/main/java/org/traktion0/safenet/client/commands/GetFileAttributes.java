@@ -12,17 +12,16 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.io.InputStream;
 import java.time.OffsetDateTime;
 
 /**
  * @author paul
  */
-public class GetFile extends SafenetCommand<SafenetFile> {
+public class GetFileAttributes extends SafenetCommand<SafenetFile> {
 
     private static final String COMMAND_PATH = "/nfs/file/";
 
-    public GetFile(WebTarget webTarget, Auth auth, String queryPath) {
+    public GetFileAttributes(WebTarget webTarget, Auth auth, String queryPath) {
         super(SafenetFile.class, webTarget, auth, queryPath);
     }
 
@@ -37,18 +36,15 @@ public class GetFile extends SafenetCommand<SafenetFile> {
                 .path(getPath())
                 .request(MediaType.TEXT_PLAIN)
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + getAuth().getToken())
-                .get();
+                .head();
     }
 
     private SafenetFile formatSafenetFile(Response response) {
-        InputStream inputStream = getInputStream(response);
         SafenetFile safenetFile = new SafenetFile();
-        safenetFile.setInputStream(inputStream);
-
         safenetFile.setContentLength(response.getLength());
-        safenetFile.setContentRange(response.getHeaderString("content-range"));
-        safenetFile.setAcceptRanges(response.getHeaderString("accept-ranges"));
-        safenetFile.setContentType(response.getHeaderString("content-type"));
+        safenetFile.setContentRange(response.getHeaderString("Content-Range"));
+        safenetFile.setAcceptRanges(response.getHeaderString("Accept-Ranges"));
+        safenetFile.setContentType(response.getHeaderString("Content-Type"));
         safenetFile.setCreatedOn(OffsetDateTime.parse(response.getHeaderString("Created-On"))); // 2016-10-05T09:34:44.523Z
         safenetFile.setLastModified(OffsetDateTime.parse(response.getHeaderString("Last-Modified"))); // 2016-10-05T09:34:44.529Z
 
@@ -58,9 +54,5 @@ public class GetFile extends SafenetCommand<SafenetFile> {
     @Override
     protected String getCommandPath() {
         return COMMAND_PATH;
-    }
-
-    private InputStream getInputStream(Response response) {
-        return response.readEntity(InputStream.class);
     }
 }

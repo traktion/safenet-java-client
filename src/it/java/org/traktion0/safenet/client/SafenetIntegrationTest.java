@@ -243,6 +243,21 @@ public class SafenetIntegrationTest {
     }
 
     @Test
+    public void testGetExistingFileAttributes() {
+        try {
+            File uploadFile = new File("src/it/resources/maidsafe.svg");
+            safenet.makeCreateFileCommand("app/existing_directory/existing_file.svg", uploadFile).execute();
+        } catch (SafenetBadRequestException e) {
+            // PG: Already exists
+        }
+
+        SafenetFile downloadFileAttributes = safenet.makeGetFileAttributesCommand("app/existing_directory/existing_file.svg").execute();
+
+        assertTrue(downloadFileAttributes.getCreatedOn() != null);
+        assertTrue(downloadFileAttributes.getLastModified() != null);
+    }
+
+    @Test
     public void testCreateAndDeleteLongName() {
         String createMessage = safenet.makeCreateLongNameCommand("traktion123").execute();
         String deleteMessage = safenet.makeDeleteLongNameCommand("traktion123").execute();
