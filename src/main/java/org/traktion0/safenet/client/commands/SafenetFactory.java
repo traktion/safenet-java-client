@@ -6,6 +6,7 @@ import org.traktion0.safenet.client.beans.SafenetDirectory;
 
 import javax.ws.rs.client.WebTarget;
 import java.io.File;
+import java.io.FileInputStream;
 
 /**
  * Created by paul on 02/09/16.
@@ -41,6 +42,10 @@ public class SafenetFactory {
 
     public CreateFile makeCreateFileCommand(String queryPath, File file) {
         return new CreateFile(webTarget, auth, queryPath, file);
+    }
+
+    public CreateFile makeCreateFileCommand(String queryPath, FileInputStream fileInputStream) {
+        return new CreateFile(webTarget, auth, queryPath, fileInputStream);
     }
 
     public CreateLongName makeCreateLongNameCommand(String longName) {

@@ -22,23 +22,40 @@ public class CreateFile extends SafenetCommand<String> {
     private static final String COMMAND_PATH = "/nfs/file/";
 
     private final File file;
+    private final FileInputStream fileInputStream;
 
     public CreateFile(WebTarget webTarget, Auth auth, String queryPath, File file) {
         super(String.class, webTarget, auth, queryPath);
 
         this.file = file;
+        this.fileInputStream = null;
+    }
+
+    public CreateFile(WebTarget webTarget, Auth auth, String queryPath, FileInputStream fileInputStream) {
+        super(String.class, webTarget, auth, queryPath);
+
+        this.file = null;
+        this.fileInputStream = fileInputStream;
     }
 
     @Override
     protected String getResponse() {
-        try (FileInputStream inputStream = new FileInputStream(file)) {
-            return doRequest(inputStream);
-        } catch (IOException e) {
-            throw new SafenetBadRequestException("Failed to open file input stream", e);
+        if (file != null) {
+            try (FileInputStream inputStream = new FileInputStream(file)) {
+                return doRequest(inputStream);
+            } catch (IOException e) {
+                throw new SafenetBadRequestException("Failed to open file input stream", e);
+            }
+        } else {
+            try {
+                return doRequest(fileInputStream);
+            } catch (IOException e) {
+                throw new SafenetBadRequestException("Failed to fetch the size of the file input stream", e);
+            }
         }
     }
 
-    private String doRequest(InputStream inputStream) {
+    private String doRequest(InputStream inputStream) throws IOException {
         Response response = getWebTarget()
                 .path(getPath())
                 .request()
@@ -48,12 +65,28 @@ public class CreateFile extends SafenetCommand<String> {
         return getEntity(response);
     }
 
-    private MultivaluedHashMap<String, Object> getHeaders() {
+    private MultivaluedHashMap<String, Object> getHeaders() throws IOException {
         MultivaluedHashMap<String, Object> headers = new MultivaluedHashMap<>();
         headers.add(HttpHeaders.AUTHORIZATION, "Bearer " + getAuth().getToken());
-        headers.add("Content-Length", Long.toString(file.length()));
-        headers.add("Content-Type", MimetypesFileTypeMap.getDefaultFileTypeMap().getContentType(file));
+        headers.add("Content-Length", Long.toString(getContentLength()));
+        headers.add("Content-Type", getContentType());
         return headers;
+    }
+
+    private long getContentLength() throws IOException {
+        if (file != null) {
+            return file.length();
+        } else {
+            return fileInputStream.getChannel().size();
+        }
+    }
+
+    private String getContentType() throws IOException {
+        if (file != null) {
+            return MimetypesFileTypeMap.getDefaultFileTypeMap().getContentType(file);
+        } else {
+            return MimetypesFileTypeMap.getDefaultFileTypeMap().getContentType(getQueryPath());
+        }
     }
 
     @Override

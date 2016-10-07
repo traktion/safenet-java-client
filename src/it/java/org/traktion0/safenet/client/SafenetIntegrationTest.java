@@ -14,6 +14,7 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -184,6 +185,25 @@ public class SafenetIntegrationTest {
 
         File file = new File("src/it/resources/maidsafe.svg");
         String message = safenet.makeCreateFileCommand("app/new_file", file).execute();
+
+        assertEquals("OK", message);
+    }
+
+    @Test
+    public void testCreateNewFileFromFileInputStream() throws IOException {
+        try {
+            safenet.makeDeleteFileCommand("app/new_file").execute();
+        } catch (SafenetBadRequestException e) {
+            // PG:ASSERT: Already deleted
+        }
+
+        String message;
+        File file = new File("src/it/resources/maidsafe.svg");
+        try (FileInputStream fileInputStream = new FileInputStream(file)) {
+            message = safenet.makeCreateFileCommand("app/new_file", fileInputStream).execute();
+        } catch (IOException e) {
+            throw new IOException(e);
+        }
 
         assertEquals("OK", message);
     }

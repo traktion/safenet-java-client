@@ -1,6 +1,7 @@
 package org.traktion0.safenet.client.beans;
 
 import javax.xml.bind.annotation.XmlRootElement;
+import java.io.FileInputStream;
 import java.io.InputStream;
 import java.time.OffsetDateTime;
 
@@ -11,6 +12,7 @@ import java.time.OffsetDateTime;
 public class SafenetFile {
 
     private InputStream inputStream;
+    private FileInputStream fileInputStream;
     private String contentRange;
     private String acceptRanges;
     private long contentLength;
@@ -20,6 +22,14 @@ public class SafenetFile {
     private String metadata;
 
     public SafenetFile() {
+    }
+
+    public FileInputStream getFileInputStream() {
+        return fileInputStream;
+    }
+
+    public void setFileInputStream(FileInputStream fileInputStream) {
+        this.fileInputStream = fileInputStream;
     }
 
     public InputStream getInputStream() {
@@ -91,28 +101,31 @@ public class SafenetFile {
         if (this == o) return true;
         if (!(o instanceof SafenetFile)) return false;
 
-        SafenetFile safenetFile = (SafenetFile) o;
+        SafenetFile that = (SafenetFile) o;
 
-        if (getContentLength() != safenetFile.getContentLength()) return false;
-        if (getInputStream() != null ? !getInputStream().equals(safenetFile.getInputStream()) : safenetFile.getInputStream() != null)
+        if (getContentLength() != that.getContentLength()) return false;
+        if (getInputStream() != null ? !getInputStream().equals(that.getInputStream()) : that.getInputStream() != null)
             return false;
-        if (getContentRange() != null ? !getContentRange().equals(safenetFile.getContentRange()) : safenetFile.getContentRange() != null)
+        if (getFileInputStream() != null ? !getFileInputStream().equals(that.getFileInputStream()) : that.getFileInputStream() != null)
             return false;
-        if (getAcceptRanges() != null ? !getAcceptRanges().equals(safenetFile.getAcceptRanges()) : safenetFile.getAcceptRanges() != null)
+        if (getContentRange() != null ? !getContentRange().equals(that.getContentRange()) : that.getContentRange() != null)
             return false;
-        if (getCreatedOn() != null ? !getCreatedOn().equals(safenetFile.getCreatedOn()) : safenetFile.getCreatedOn() != null)
+        if (getAcceptRanges() != null ? !getAcceptRanges().equals(that.getAcceptRanges()) : that.getAcceptRanges() != null)
             return false;
-        if (getLastModified() != null ? !getLastModified().equals(safenetFile.getLastModified()) : safenetFile.getLastModified() != null)
+        if (getCreatedOn() != null ? !getCreatedOn().equals(that.getCreatedOn()) : that.getCreatedOn() != null)
             return false;
-        if (getContentType() != null ? !getContentType().equals(safenetFile.getContentType()) : safenetFile.getContentType() != null)
+        if (getLastModified() != null ? !getLastModified().equals(that.getLastModified()) : that.getLastModified() != null)
             return false;
-        return getMetadata() != null ? getMetadata().equals(safenetFile.getMetadata()) : safenetFile.getMetadata() == null;
+        if (getContentType() != null ? !getContentType().equals(that.getContentType()) : that.getContentType() != null)
+            return false;
+        return getMetadata() != null ? getMetadata().equals(that.getMetadata()) : that.getMetadata() == null;
 
     }
 
     @Override
     public int hashCode() {
         int result = getInputStream() != null ? getInputStream().hashCode() : 0;
+        result = 31 * result + (getFileInputStream() != null ? getFileInputStream().hashCode() : 0);
         result = 31 * result + (getContentRange() != null ? getContentRange().hashCode() : 0);
         result = 31 * result + (getAcceptRanges() != null ? getAcceptRanges().hashCode() : 0);
         result = 31 * result + (int) (getContentLength() ^ (getContentLength() >>> 32));
@@ -127,6 +140,7 @@ public class SafenetFile {
     public String toString() {
         return "SafenetFile{" +
                 "inputStream=" + inputStream +
+                ", fileInputStream=" + fileInputStream +
                 ", contentRange='" + contentRange + '\'' +
                 ", acceptRanges='" + acceptRanges + '\'' +
                 ", contentLength=" + contentLength +
