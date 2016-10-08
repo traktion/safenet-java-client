@@ -208,6 +208,30 @@ public class SafenetIntegrationTest {
         assertEquals("OK", message);
     }
 
+    @Test
+    public void testCreateNewFileFromByteArray() throws IOException {
+        try {
+            safenet.makeDeleteFileCommand("app/new_file").execute();
+        } catch (SafenetBadRequestException e) {
+            // PG:ASSERT: Already deleted
+        }
+
+        String message;
+        File file = new File("src/it/resources/maidsafe.svg");
+        try (FileInputStream fileInputStream = new FileInputStream(file)) {
+            byte fileContent[] = new byte[(int)file.length()];
+            if (fileInputStream.read(fileContent) > -1) {
+                message = safenet.makeCreateFileCommand("app/new_file", fileContent).execute();
+            } else {
+                message = "failed";
+            }
+        } catch (IOException e) {
+            throw new IOException(e);
+        }
+
+        assertEquals("OK", message);
+    }
+
     @Test(expected = SafenetBadRequestException.class)
     public void testCreateNewFileSourceMissing() {
         try {

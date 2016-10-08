@@ -23,12 +23,14 @@ public class CreateFile extends SafenetCommand<String> {
 
     private final File file;
     private final FileInputStream fileInputStream;
+    private final byte[] bytes;
 
     public CreateFile(WebTarget webTarget, Auth auth, String queryPath, File file) {
         super(String.class, webTarget, auth, queryPath);
 
         this.file = file;
         this.fileInputStream = null;
+        this.bytes = null;
     }
 
     public CreateFile(WebTarget webTarget, Auth auth, String queryPath, FileInputStream fileInputStream) {
@@ -36,6 +38,15 @@ public class CreateFile extends SafenetCommand<String> {
 
         this.file = null;
         this.fileInputStream = fileInputStream;
+        this.bytes = null;
+    }
+
+    public CreateFile(WebTarget webTarget, Auth auth, String queryPath, byte[] bytes) {
+        super(String.class, webTarget, auth, queryPath);
+
+        this.file = null;
+        this.fileInputStream = null;
+        this.bytes = bytes;
     }
 
     @Override
@@ -46,11 +57,17 @@ public class CreateFile extends SafenetCommand<String> {
             } catch (IOException e) {
                 throw new SafenetBadRequestException("Failed to open file input stream", e);
             }
-        } else {
+        } else if (fileInputStream != null) {
             try {
                 return doRequest(fileInputStream);
             } catch (IOException e) {
-                throw new SafenetBadRequestException("Failed to fetch the size of the file input stream", e);
+                throw new SafenetBadRequestException("Failed to fetch the size of the file input stream to be saved", e);
+            }
+        } else {
+            try {
+                return doRequest(bytes);
+            } catch (IOException e) {
+                throw new SafenetBadRequestException("Failed to fetch the size of the byte array to be saved", e);
             }
         }
     }
@@ -61,6 +78,16 @@ public class CreateFile extends SafenetCommand<String> {
                 .request()
                 .headers(getHeaders())
                 .post(Entity.entity(inputStream, MediaType.APPLICATION_OCTET_STREAM));
+
+        return getEntity(response);
+    }
+
+    private String doRequest(byte[] bytes) throws IOException {
+        Response response = getWebTarget()
+                .path(getPath())
+                .request()
+                .headers(getHeaders())
+                .post(Entity.entity(bytes, MediaType.APPLICATION_OCTET_STREAM));
 
         return getEntity(response);
     }
@@ -76,8 +103,10 @@ public class CreateFile extends SafenetCommand<String> {
     private long getContentLength() throws IOException {
         if (file != null) {
             return file.length();
-        } else {
+        } else if (fileInputStream != null) {
             return fileInputStream.getChannel().size();
+        } else {
+            return bytes.length;
         }
     }
 

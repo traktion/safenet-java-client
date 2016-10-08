@@ -48,6 +48,10 @@ public class SafenetFactory {
         return new CreateFile(webTarget, auth, queryPath, fileInputStream);
     }
 
+    public CreateFile makeCreateFileCommand(String queryPath, byte[] bytes) {
+        return new CreateFile(webTarget, auth, queryPath, bytes);
+    }
+
     public CreateLongName makeCreateLongNameCommand(String longName) {
         return new CreateLongName(webTarget, auth, longName);
     }
