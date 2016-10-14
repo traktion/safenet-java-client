@@ -1,5 +1,6 @@
 package org.traktion0.safenet.client.commands;
 
+import org.apache.commons.lang.StringUtils;
 import org.traktion0.safenet.client.beans.Auth;
 import org.traktion0.safenet.client.beans.Dns;
 import org.traktion0.safenet.client.beans.SafenetDirectory;
@@ -14,18 +15,24 @@ import java.io.FileInputStream;
 public class SafenetFactory {
     private final WebTarget webTarget;
     private Auth auth;
+    private String rootDirectory;
 
-    private SafenetFactory(WebTarget webTarget, Auth auth) {
+    private SafenetFactory(WebTarget webTarget, Auth auth, String rootDirectory) {
         System.setProperty("sun.net.http.allowRestrictedHeaders", "true");
 
         this.webTarget = webTarget;
         this.auth = auth;
+        this.rootDirectory = rootDirectory;
 
         this.auth = makeCreateAuthTokenCommand().execute();
     }
 
-    public static SafenetFactory getInstance(WebTarget webTarget, Auth auth) {
-        return new SafenetFactory(webTarget, auth);
+    public static SafenetFactory getInstance(WebTarget webTarget, Auth auth, String rootDirectory) {
+        return new SafenetFactory(webTarget, auth, rootDirectory);
+    }
+
+    private String getQueryStringWithRoot(String queryPath) {
+        return rootDirectory + "/" + StringUtils.stripStart(queryPath, "/");
     }
 
     public CreateAuthToken makeCreateAuthTokenCommand() {
@@ -37,19 +44,19 @@ public class SafenetFactory {
     }
 
     public CreateDirectory makeCreateDirectoryCommand(String queryPath, SafenetDirectory safenetDirectory) {
-        return new CreateDirectory(webTarget, auth, queryPath, safenetDirectory);
+        return new CreateDirectory(webTarget, auth, getQueryStringWithRoot(queryPath), safenetDirectory);
     }
 
     public CreateFile makeCreateFileCommand(String queryPath, File file) {
-        return new CreateFile(webTarget, auth, queryPath, file);
+        return new CreateFile(webTarget, auth, getQueryStringWithRoot(queryPath), file);
     }
 
     public CreateFile makeCreateFileCommand(String queryPath, FileInputStream fileInputStream) {
-        return new CreateFile(webTarget, auth, queryPath, fileInputStream);
+        return new CreateFile(webTarget, auth, getQueryStringWithRoot(queryPath), fileInputStream);
     }
 
     public CreateFile makeCreateFileCommand(String queryPath, byte[] bytes) {
-        return new CreateFile(webTarget, auth, queryPath, bytes);
+        return new CreateFile(webTarget, auth, getQueryStringWithRoot(queryPath), bytes);
     }
 
     public CreateLongName makeCreateLongNameCommand(String longName) {
@@ -69,11 +76,11 @@ public class SafenetFactory {
     }
 
     public DeleteDirectory makeDeleteDirectoryCommand(String queryPath) {
-        return new DeleteDirectory(webTarget, auth, queryPath);
+        return new DeleteDirectory(webTarget, auth, getQueryStringWithRoot(queryPath));
     }
 
     public DeleteFile makeDeleteFileCommand(String queryPath) {
-        return new DeleteFile(webTarget, auth, queryPath);
+        return new DeleteFile(webTarget, auth, getQueryStringWithRoot(queryPath));
     }
 
     public DeleteLongName makeDeleteLongNameCommand(String longName) {
@@ -89,14 +96,14 @@ public class SafenetFactory {
     }
 
     public GetDirectory makeGetDirectoryCommand(String queryPath) {
-        return new GetDirectory(webTarget, auth, queryPath);
+        return new GetDirectory(webTarget, auth, getQueryStringWithRoot(queryPath));
     }
 
     public GetFile makeGetFileCommand(String queryPath) {
-        return new GetFile(webTarget, auth, queryPath);
+        return new GetFile(webTarget, auth, getQueryStringWithRoot(queryPath));
     }
 
     public GetFileAttributes makeGetFileAttributesCommand(String queryPath) {
-        return new GetFileAttributes(webTarget, auth, queryPath);
+        return new GetFileAttributes(webTarget, auth, getQueryStringWithRoot(queryPath));
     }
 }
