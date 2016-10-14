@@ -40,7 +40,13 @@ public abstract class SafenetCommand<R> extends HystrixCommand<R> {
         try {
             return getResponse();
         } catch (Exception e) {
-            throw new SafenetBadRequestException(e.getCause().getMessage(), e.getCause());
+            Throwable causeException;
+            if (e.getCause() != null) {
+                causeException = e.getCause();
+            } else {
+                causeException = e;
+            }
+            throw new SafenetBadRequestException(causeException.getMessage(), causeException);
         }
     }
 
