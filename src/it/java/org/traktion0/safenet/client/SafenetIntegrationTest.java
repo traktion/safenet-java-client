@@ -55,7 +55,7 @@ public class SafenetIntegrationTest {
         client.property(ClientProperties.REQUEST_ENTITY_PROCESSING, "CHUNKED");
         webTarget = client.target(LAUNCHER_URL);
 
-        safenet = SafenetFactory.getInstance(webTarget, auth, "app");
+        safenet = SafenetFactory.getInstance(webTarget, auth, "drive");
 
         safenet.makeCreateDirectoryCommand("existing_directory").execute();
     }
@@ -102,7 +102,7 @@ public class SafenetIntegrationTest {
                 )
         );
 
-        SafenetFactory safenetTemp = SafenetFactory.getInstance(webTarget, auth, "app");
+        SafenetFactory safenetTemp = SafenetFactory.getInstance(webTarget, auth, "drive");
         String authMessage = safenetTemp.makeDeleteAuthTokenCommand().execute();
 
         assertEquals("OK", authMessage);
@@ -257,6 +257,8 @@ public class SafenetIntegrationTest {
             // PG: Already exists
         }
 
+        // PG: offset/length do not seem to be working and are causing bad request errors
+        //SafenetFile downloadFile = safenet.makeGetFileCommand("existing_directory/existing_file.svg?offset=0&length=4096").execute();
         SafenetFile downloadFile = safenet.makeGetFileCommand("existing_directory/existing_file.svg").execute();
 
         try (InputStream inputStream = downloadFile.getInputStream()) {
@@ -338,7 +340,7 @@ public class SafenetIntegrationTest {
         Dns dns = new Dns();
         dns.setLongName("traktion0");
         dns.setServiceName("newservice"); // PG: mustn't contain underscores
-        dns.setRootPath("app");
+        dns.setRootPath("drive");
         dns.setServiceHomeDirPath("/existing_directory/");
 
         try {
@@ -357,7 +359,7 @@ public class SafenetIntegrationTest {
         Dns dns = new Dns();
         dns.setLongName("traktion0");
         dns.setServiceName("existingservice"); // PG: mustn't contain underscores
-        dns.setRootPath("app");
+        dns.setRootPath("drive");
         dns.setServiceHomeDirPath("/existing_directory");
 
         // PG: Setup existing directory to test
