@@ -60,7 +60,7 @@ public class GetFile extends SafenetCommand<SafenetFile> {
     }
 
     private String getRangeValue() {
-        return "bytes=" + Long.toString(offset) + "-" + Long.toString(length);
+        return "bytes=" + Long.toString(offset) + "-" + Long.toString(offset+length);
     }
 
     private SafenetFile formatSafenetFile(Response response) {
