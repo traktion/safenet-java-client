@@ -8,6 +8,7 @@ package org.traktion0.safenet.client.commands;
 import org.traktion0.safenet.client.beans.Auth;
 import org.traktion0.safenet.client.beans.SafenetFile;
 
+import javax.ws.rs.client.Invocation.Builder;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
@@ -21,9 +22,18 @@ import java.time.OffsetDateTime;
 public class GetFile extends SafenetCommand<SafenetFile> {
 
     private static final String COMMAND_PATH = "/nfs/file/";
+    private final long offset;
+    private final long length;
 
     public GetFile(WebTarget webTarget, Auth auth, String queryPath) {
+        this(webTarget, auth, queryPath, 0, 0);
+    }
+
+    public GetFile(WebTarget webTarget, Auth auth, String queryPath, long offset, long length) {
         super(SafenetFile.class, webTarget, auth, queryPath);
+
+        this.offset = offset;
+        this.length = length;
     }
 
     @Override
@@ -33,11 +43,24 @@ public class GetFile extends SafenetCommand<SafenetFile> {
     }
 
     private Response doRequest() {
-        return getWebTarget()
+        Builder builder = getWebTarget()
                 .path(getPath())
                 .request(MediaType.TEXT_PLAIN)
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + getAuth().getToken())
-                .get();
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + getAuth().getToken());
+
+        if (hasRange()) {
+            builder = builder.header("Range", getRangeValue());
+        }
+
+        return builder.get();
+    }
+
+    private boolean hasRange() {
+        return (length > 0);
+    }
+
+    private String getRangeValue() {
+        return "bytes=" + Long.toString(offset) + "-" + Long.toString(length);
     }
 
     private SafenetFile formatSafenetFile(Response response) {

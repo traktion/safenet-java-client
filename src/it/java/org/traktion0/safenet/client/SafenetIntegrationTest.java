@@ -257,21 +257,60 @@ public class SafenetIntegrationTest {
             // PG: Already exists
         }
 
-        // PG: offset/length do not seem to be working and are causing bad request errors
-        //SafenetFile downloadFile = safenet.makeGetFileCommand("existing_directory/existing_file.svg?offset=0&length=4096").execute();
-        SafenetFile downloadFile = safenet.makeGetFileCommand("existing_directory/existing_file.svg").execute();
+        try {
+            // PG: offset/length do not seem to be working and are causing bad request errors
+            //SafenetFile downloadFile = safenet.makeGetFileCommand("existing_directory/existing_file.svg?offset=0&length=4096").execute();
+            SafenetFile downloadFile = safenet.makeGetFileCommand("existing_directory/existing_file.svg").execute();
 
-        try (InputStream inputStream = downloadFile.getInputStream()) {
-            byte[] buffer = new byte[1024];
-            int bytesRead;
-            while ((bytesRead = inputStream.read(buffer)) != -1) {
-                downloadFileLength += bytesRead;
+            try (InputStream inputStream = downloadFile.getInputStream()) {
+                byte[] buffer = new byte[1024];
+                int bytesRead;
+                while ((bytesRead = inputStream.read(buffer)) != -1) {
+                    downloadFileLength += bytesRead;
+                }
+            } catch (IOException e) {
+                downloadFileLength = 0;
             }
-        } catch (IOException e) {
-            downloadFileLength = 0;
+        } catch (SafenetBadRequestException e) {
+            System.err.println(e.getStatusCode() + ": " + e.getReason() + " (" + e.getMessage() + ")");
+            throw new SafenetBadRequestException(e.getMessage(), e);
         }
 
         assertTrue(downloadFileLength == uploadFileLength);
+    }
+
+    @Test
+    public void testGetExistingFilePart() {
+        long downloadFileLength = 0;
+        long partLength = 1024;
+
+        try {
+            File uploadFile = new File("src/it/resources/maidsafe.svg");
+            safenet.makeCreateFileCommand("existing_directory/existing_file.svg", uploadFile).execute();
+        } catch (SafenetBadRequestException e) {
+            // PG: Already exists
+        }
+
+        try {
+            // PG: offset/length do not seem to be working and are causing bad request errors
+            //SafenetFile downloadFile = safenet.makeGetFileCommand("existing_directory/existing_file.svg?offset=0&length=4096").execute();
+            SafenetFile downloadFile = safenet.makeGetFileCommand("existing_directory/existing_file.svg", 0, partLength).execute();
+
+            try (InputStream inputStream = downloadFile.getInputStream()) {
+                byte[] buffer = new byte[512];
+                int bytesRead;
+                while ((bytesRead = inputStream.read(buffer)) != -1) {
+                    downloadFileLength += bytesRead;
+                }
+            } catch (IOException e) {
+                downloadFileLength = 0;
+            }
+        } catch (SafenetBadRequestException e) {
+            System.err.println(e.getStatusCode() + ": " + e.getReason() + " (" + e.getMessage() + ")");
+            throw new SafenetBadRequestException(e.getMessage(), e);
+        }
+
+        assertTrue(downloadFileLength == partLength);
     }
 
     @Test

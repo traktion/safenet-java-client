@@ -103,6 +103,10 @@ public class SafenetFactory {
         return new GetFile(webTarget, auth, getQueryStringWithRoot(queryPath));
     }
 
+    public GetFile makeGetFileCommand(String queryPath, long offset, long length) {
+        return new GetFile(webTarget, auth, getQueryStringWithRoot(queryPath), offset, length);
+    }
+
     public GetFileAttributes makeGetFileAttributesCommand(String queryPath) {
         return new GetFileAttributes(webTarget, auth, getQueryStringWithRoot(queryPath));
     }

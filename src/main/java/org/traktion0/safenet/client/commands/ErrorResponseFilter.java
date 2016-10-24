@@ -14,7 +14,7 @@ public class ErrorResponseFilter implements ClientResponseFilter {
 
     @Override
     public void filter(ClientRequestContext requestContext, ClientResponseContext responseContext) throws IOException {
-        if (responseContext.getStatus() != Response.Status.OK.getStatusCode()) {
+        if (responseContext.getStatus() < 200 || responseContext.getStatus() >= 300 ) {
             if (responseContext.hasEntity()) {
 
                 String message = responseContext.getStatusInfo().getReasonPhrase();
